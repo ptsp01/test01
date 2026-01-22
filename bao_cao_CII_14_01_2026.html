@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Phân tích Toàn diện CII | StockGPT</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- 1. CẤU HÌNH MÀU SẮC --- */
+        :root {
+            --primary-color: #004aad; /* Xanh CII */
+            --accent-color: #f1c40f;  /* Vàng */
+            --action-buy: #27ae60;
+            --action-hold: #f39c12;
+            --action-sell: #c0392b;
+            --text-main: #1a1a1a;
+            --bg-light: #f4f7f6;
+        }
+
+        /* --- 2. CSS CƠ BẢN --- */
+        body { font-family: 'Inter', sans-serif; background-color: #eef1f5; color: var(--text-main); margin: 0; line-height: 1.6; }
+        .container { max-width: 1100px; margin: 20px auto; background: white; box-shadow: 0 0 40px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+
+        /* HEADER */
+        header { background: linear-gradient(135deg, var(--primary-color), #002d6b); color: white; padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .brand h1 { margin: 0; font-family: 'Playfair Display', serif; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .ticker-box { text-align: right; }
+        .ticker { font-size: 36px; font-weight: 800; color: var(--accent-color); text-shadow: 0 2px 4px rgba(0,0,0,0.3); line-height: 1; }
+
+        /* LAYOUT */
+        .dashboard { display: grid; grid-template-columns: 280px 1fr; min-height: 900px; }
+        .sidebar { background: #fcfcfc; border-right: 1px solid #eee; padding: 25px; }
+        
+        /* METRICS SIDEBAR */
+        .metric-card { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed #ddd; }
+        .metric-title { font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600; }
+        .metric-value { font-size: 22px; font-weight: 700; color: var(--primary-color); margin-top: 5px; }
+        .metric-sub { font-size: 13px; margin-top: 4px; }
+        .rec-tag { color: white; padding: 8px 16px; border-radius: 4px; display: block; font-weight: bold; font-size: 14px; margin-bottom: 25px; text-transform: uppercase; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .bg-buy { background: var(--action-buy); }
+
+        /* TABS */
+        .main-content { padding: 0; background: #fff; }
+        .tabs { display: flex; border-bottom: 2px solid #eee; background: #fafafa; flex-wrap: wrap; }
+        .tab-btn { padding: 18px 20px; border: none; background: none; cursor: pointer; font-weight: 600; color: #666; font-size: 13px; transition: all 0.3s; border-bottom: 3px solid transparent; text-transform: uppercase; flex: 1; white-space: nowrap; }
+        .tab-btn:hover { color: var(--primary-color); background: #f0f0f0; }
+        .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--accent-color); background: white; }
+        .tab-content { display: none; padding: 40px; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CONTENT ELEMENTS */
+        h2 { color: var(--primary-color); font-family: 'Playfair Display', serif; border-left: 5px solid var(--accent-color); padding-left: 15px; margin-top: 0; margin-bottom: 25px; }
+        h3 { font-size: 16px; font-weight: 700; margin-top: 30px; color: #333; }
+        
+        /* SWOT SPECIFIC CSS */
+        .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .swot-item { padding: 20px; border-radius: 8px; border: 1px solid #eee; transition: all 0.3s; position: relative; overflow: hidden; height: 160px; cursor: default; }
+        .swot-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); height: auto; min-height: 160px; z-index: 10; }
+        .swot-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 14px; text-transform: uppercase; }
+        .swot-list { padding-left: 20px; margin: 0; font-size: 13px; color: #555; display: none; line-height: 1.8; }
+        .swot-item:hover .swot-list { display: block; animation: fadeIn 0.3s; }
+
+        /* TABLE */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .data-table th { background: var(--primary-color); color: white; padding: 12px; text-align: left; }
+        .data-table td { padding: 12px; border: 1px solid #eee; }
+        .data-table tr:nth-child(even) { background-color: #f9f9f9; }
+
+        /* CALCULATOR */
+        .calc-box { background: #f8f9fa; padding: 30px; border-radius: 8px; border: 1px solid #ddd; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-calc { background: var(--primary-color); color: white; border: none; padding: 15px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        .btn-calc:hover { background: #002d6b; }
+
+        .footer { padding: 25px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #eee; background: #fafafa; }
+        
+        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } .swot-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="brand">
+            <h1>StockGPT Report</h1>
+            <div class="brand-subtitle"><i class="fas fa-chart-line"></i> Phân tích Chuyên sâu & Định giá</div>
+        </div>
+        <div class="ticker-box">
+            <div class="ticker">19,050</div>
+            <div style="font-size: 14px; opacity: 0.9; font-weight: 500;">CII - Hạ tầng TP.HCM</div>
+            <div style="font-size: 12px; margin-top: 6px; opacity: 0.8;">
+                <span style="color: #ff6b6b; font-weight: bold;"><i class="fas fa-caret-down"></i> -100 (-0.52%)</span> | 14/01/2026
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="rec-tag bg-buy"><i class="fas fa-check-circle"></i> MUA TÍCH SẢN</div>
+            
+            <div class="metric-card">
+                <div class="metric-title">Giá thị trường</div>
+                <div class="metric-value">19,050 VND</div>
+                <div class="metric-sub" style="color: var(--action-sell);">Vùng hỗ trợ cứng</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-title">P/B (Giá/Sổ sách)</div>
+                <div class="metric-value">0.92x</div>
+                <div class="metric-sub" style="color: var(--action-buy);">Rẻ hơn TB ngành (1.3x)</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-title">Dòng tiền Cổ tức</div>
+                <div class="metric-value">1,200 đ/cp</div>
+                <div class="metric-sub">Yield: <strong>6.3%</strong></div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <p class="metric-title" style="margin-bottom: 10px;">Biến động giá (6 tháng)</p>
+                <canvas id="sidebarChart" height="200"></canvas>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab(event, 'thesis')">1. Luận Điểm</button>
+                <button class="tab-btn" onclick="openTab(event, 'swot')">2. Phân Tích SWOT</button>
+                <button class="tab-btn" onclick="openTab(event, 'valuation')">3. Định Giá & So Sánh</button>
+                <button class="tab-btn" onclick="openTab(event, 'calculator')">4. Tính Lãi/Lỗ</button>
+            </div>
+
+            <div id="thesis" class="tab-content active">
+                <h2>Cơ Hội Đầu Tư Giá Trị (Value Investing)</h2>
+                <p>CII đang giao dịch ở vùng định giá <strong>hấp dẫn nhất trong 3 năm qua</strong> (P/B < 1). Với dòng tiền ổn định từ mảng BOT bù đắp cho sự trầm lắng của BĐS, đây là thời điểm vàng để tích lũy cổ phiếu trước khi chu kỳ tăng trưởng mới bắt đầu.</p>
+                
+                <div class="highlight-box box-success" style="background: #e8f5e9; border-left: 4px solid #2e7d32;">
+                    <h3 style="margin-top: 0; color: #2e7d32;"><i class="fas fa-rocket"></i> Động lực tăng giá (Catalysts)</h3>
+                    <ul>
+                        <li><strong>Dòng tiền BOT bền vững:</strong> Doanh thu thu phí từ cao tốc Trung Lương - Mỹ Thuận và Xa lộ Hà Nội dự kiến đạt >3,000 tỷ/năm, đảm bảo khả năng trả nợ và chia cổ tức.</li>
+                        <li><strong>Câu chuyện Thủ Thiêm:</strong> Thông tin tái khởi động đấu giá đất tại Thủ Thiêm sẽ là "ngòi nổ" tâm lý mạnh nhất cho CII trong năm 2026.</li>
+                        <li><strong>Lãi suất thấp:</strong> Môi trường lãi suất duy trì mức thấp giúp giảm gánh nặng chi phí lãi vay (vốn là điểm yếu lớn nhất của CII).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="swot" class="tab-content">
+                <h2>Phân Tích SWOT Toàn Diện</h2>
+                <p style="font-style: italic; color: #666; font-size: 13px;">*Di chuột vào các ô để xem chi tiết.</p>
+                
+                <div class="swot-grid">
+                    <div class="swot-item" style="background-color: #e8f5e9; border-color: #c8e6c9;">
+                        <div class="swot-title" style="color: #2e7d32;">
+                            <i class="fas fa-dumbbell"></i> ĐIỂM MẠNH (Strengths)
+                        </div>
+                        <ul class="swot-list">
+                            <li>Dẫn đầu thị trường về hạ tầng giao thông (BOT) tại TP.HCM.</li>
+                            <li>Sở hữu quỹ đất "kim cương" tại Thủ Thiêm với giá vốn thấp.</li>
+                            <li>Dòng tiền hoạt động (OCF) dương mạnh nhờ nguồn thu phí ổn định.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="swot-item" style="background-color: #ffebee; border-color: #ffcdd2;">
+                        <div class="swot-title" style="color: #c62828;">
+                            <i class="fas fa-user-injured"></i> ĐIỂM YẾU (Weaknesses)
+                        </div>
+                        <ul class="swot-list">
+                            <li>Tỷ lệ đòn bẩy tài chính (Debt/Equity) cao, chi phí lãi vay lớn.</li>
+                            <li>Cấu trúc sở hữu chéo và nhiều công ty con phức tạp.</li>
+                            <li>Lợi nhuận kế toán thường biến động thất thường do đánh giá lại tài sản.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="swot-item" style="background-color: #e3f2fd; border-color: #bbdefb;">
+                        <div class="swot-title" style="color: #1565c0;">
+                            <i class="fas fa-lightbulb"></i> CƠ HỘI (Opportunities)
+                        </div>
+                        <ul class="swot-list">
+                            <li>Chính phủ đẩy mạnh giải ngân đầu tư công giai đoạn 2026-2030.</li>
+                            <li>Mặt bằng giá đất Thủ Thiêm thiết lập đỉnh mới sau đấu giá.</li>
+                            <li>Khả năng thoái vốn các dự án đã hoàn thành (Exit strategy) để giảm nợ.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="swot-item" style="background-color: #fff3e0; border-color: #ffe0b2;">
+                        <div class="swot-title" style="color: #ef6c00;">
+                            <i class="fas fa-bolt"></i> THÁCH THỨC (Threats)
+                        </div>
+                        <ul class="swot-list">
+                            <li>Rủi ro pháp lý kéo dài tại các dự án bất động sản.</li>
+                            <li>Biến động lãi suất: Nếu lãi suất tăng lại, lợi nhuận sẽ bị bào mòn nhanh chóng.</li>
+                            <li>Chính sách cắt giảm thời gian thu phí BOT có thể ảnh hưởng dòng tiền.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="valuation" class="tab-content">
+                <h2>Định Giá & So Sánh Ngang Hàng</h2>
+                
+                <h3>1. So sánh Tương quan (Relative Valuation)</h3>
+                <div style="width: 100%; margin: 20px 0;">
+                    <canvas id="comparisonChart" height="120"></canvas>
+                </div>
+                <p style="text-align: center; font-size: 13px; color: #666;">
+                    *Biểu đồ so sánh P/B hiện tại: CII đang rẻ hơn đáng kể so với HHV và VCG.
+                </p>
+
+                <h3>2. Kịch Bản Mục Tiêu Giá (2026)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th width="20%">Kịch Bản</th>
+                            <th width="50%">Cơ sở giả định</th>
+                            <th width="30%">Giá Mục Tiêu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Thận trọng</strong></td>
+                            <td>BĐS đóng băng, lãi suất tăng >8%. Chỉ dựa vào dòng tiền BOT.</td>
+                            <td style="color: #c0392b; font-weight: bold;">17,500 VND</td>
+                        </tr>
+                        <tr style="background-color: #e8f5e9;">
+                            <td><strong>Cơ sở</strong><br><small>(Khả năng cao)</small></td>
+                            <td>Dòng tiền BOT tăng 10%. P/B hồi phục về mức 1.2x.</td>
+                            <td style="color: #27ae60; font-weight: bold; font-size: 16px;">25,500 VND</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Khả quan</strong></td>
+                            <td>Đấu giá đất Thủ Thiêm thành công. Tín dụng BĐS nới lỏng.</td>
+                            <td style="color: #27ae60; font-weight: bold;">32,000 VND</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="calculator" class="tab-content">
+                <h2>Công Cụ Tính Hiệu Quả Đầu Tư</h2>
+                <div class="calc-box">
+                    <div class="form-group">
+                        <label class="form-label">Vốn đầu tư (VND):</label>
+                        <input type="number" id="capital" class="form-input" value="100000000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Giá mua (VND):</label>
+                        <input type="number" id="buyPrice" class="form-input" value="19050">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mục tiêu giá bán:</label>
+                        <select id="targetPriceInput" class="form-input">
+                            <option value="25500" selected>Kịch bản Cơ sở (25,500)</option>
+                            <option value="32000">Kịch bản Bùng nổ (32,000)</option>
+                            <option value="17500">Cắt lỗ / Thận trọng (17,500)</option>
+                        </select>
+                    </div>
+                    <button class="btn-calc" onclick="calculateProfit()">Tính Toán</button>
+                    
+                    <div id="calcResult" style="margin-top: 25px; display: none; text-align: center; border-top: 1px solid #ddd; padding-top: 20px;">
+                        <p>Số lượng cổ phiếu: <strong id="resVolume" style="font-size: 18px;">0</strong> cp</p>
+                        <p>Lợi nhuận: <strong id="resProfit" style="font-size: 24px; color: var(--action-buy);">0 VND</strong></p>
+                        <p>ROI: <strong id="resROI">0%</strong></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="footer">
+        <p>Báo cáo được tạo bởi StockGPT | Dữ liệu cập nhật ngày 14/01/2026</p>
+    </div>
+</div>
+
+<script>
+    // --- 1. BIỂU ĐỒ GIÁ (SIDEBAR) ---
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    const ctxSidebar = document.getElementById('sidebarChart').getContext('2d');
+    new Chart(ctxSidebar, {
+        type: 'line',
+        data: {
+            labels: ['T8', 'T9', 'T10', 'T11', 'T12', 'Nay'],
+            datasets: [{
+                label: 'Giá CII',
+                data: [22.5, 23.2, 21.0, 20.5, 19.8, 19.05],
+                borderColor: '#c0392b',
+                backgroundColor: 'rgba(192, 57, 43, 0.05)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 3
+            }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+
+    // --- 2. BIỂU ĐỒ SO SÁNH (COMPARISON CHART - MỚI) ---
+    // So sánh P/B của CII với các mã cùng ngành Hạ tầng/Xây dựng
+    const ctxComp = document.getElementById('comparisonChart').getContext('2d');
+    new Chart(ctxComp, {
+        type: 'bar',
+        data: {
+            labels: ['CII', 'HHV', 'VCG', 'LCG', 'TB Ngành'],
+            datasets: [{
+                label: 'P/B (Lần)',
+                data: [0.92, 1.35, 1.42, 1.15, 1.30], // Dữ liệu giả định hợp lý 2026
+                backgroundColor: [
+                    '#004aad', // CII nổi bật
+                    '#bdc3c7', '#bdc3c7', '#bdc3c7', '#95a5a6'
+                ],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Biểu đồ ngang
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true, title: { display: true, text: 'P/B (Lần)' } } }
+        }
+    });
+
+    // --- 3. TAB LOGIC ---
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        setTimeout(() => { document.getElementById(tabName).classList.add("active"); }, 10);
+        evt.currentTarget.className += " active";
+    }
+
+    // --- 4. CALC LOGIC ---
+    function calculateProfit() {
+        let capital = parseFloat(document.getElementById('capital').value);
+        let buyPrice = parseFloat(document.getElementById('buyPrice').value);
+        let targetPrice = parseFloat(document.getElementById('targetPriceInput').value);
+
+        if (isNaN(capital) || isNaN(buyPrice) || isNaN(targetPrice)) {
+            alert("Vui lòng nhập đủ thông tin!"); return;
+        }
+
+        let shares = Math.floor(capital / buyPrice);
+        let profit = (shares * targetPrice) - (shares * buyPrice);
+        let roi = (profit / (shares * buyPrice)) * 100;
+
+        const fmt = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+        document.getElementById('resVolume').innerText = shares.toLocaleString();
+        
+        let profitEl = document.getElementById('resProfit');
+        profitEl.innerText = fmt.format(profit);
+        profitEl.style.color = profit >= 0 ? '#27ae60' : '#c0392b';
+
+        let roiEl = document.getElementById('resROI');
+        roiEl.innerText = roi.toFixed(2) + "%";
+        roiEl.style.color = roi >= 0 ? '#27ae60' : '#c0392b';
+
+        document.getElementById('calcResult').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
