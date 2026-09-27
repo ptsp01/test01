@@ -1,0 +1,986 @@
+<title>Sổ Tập Tạ</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Be+Vietnam+Pro:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EDF0F2; --surface:#FFFFFF; --surface-2:#F4F6F8; --ink:#141A21; --ink-2:#4B5562; --ink-3:#7A8491;
+  --line:#D8DDE2; --accent:#1F5FD1; --accent-soft:#E3ECFB; --accent-ink:#FFFFFF;
+  --ok:#1E8A47; --ok-soft:#E1F3E7; --danger:#C2362D; --danger-soft:#FBE7E5;
+  --p-red:#D8342C; --p-blue:#2358C8; --p-yellow:#E3AC0E; --p-green:#2E9A4B; --p-black:#3A3F47; --p-white:#C9CFD5;
+  --shadow:0 1px 2px rgba(20,26,33,.06),0 4px 16px rgba(20,26,33,.06);
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1216; --surface:#171C22; --surface-2:#1F252C; --ink:#E8ECF0; --ink-2:#B0B8C2; --ink-3:#808A96;
+    --line:#2A323B; --accent:#6A9AF3; --accent-soft:#1C2A44; --accent-ink:#0E1216;
+    --ok:#4CC27A; --ok-soft:#14301F; --danger:#EF6B61; --danger-soft:#3A1A18;
+    --p-black:#8A919B; --p-white:#E6EAEE; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1216; --surface:#171C22; --surface-2:#1F252C; --ink:#E8ECF0; --ink-2:#B0B8C2; --ink-3:#808A96;
+  --line:#2A323B; --accent:#6A9AF3; --accent-soft:#1C2A44; --accent-ink:#0E1216;
+  --ok:#4CC27A; --ok-soft:#14301F; --danger:#EF6B61; --danger-soft:#3A1A18;
+  --p-black:#8A919B; --p-white:#E6EAEE; --shadow:none;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);margin:0;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:0 calc(190px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:.01em;margin:0;text-wrap:balance}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:flex;align-items:center;gap:10px;padding-block:12px 10px}
+.top h1{font-size:26px;text-transform:uppercase;line-height:1}
+.brand{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.plates{display:flex;gap:2px;align-items:center}
+.plates i{display:block;width:5px;border-radius:2px}
+.pill{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.pill.ok{color:var(--ok);border-color:transparent;background:var(--ok-soft)}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar-in{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:640px}
+.tab{background:none;border:0;padding:10px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--ink-3);font-weight:500}
+.tab svg{width:22px;height:22px}
+.tab[aria-selected="true"]{color:var(--accent)}
+
+/* generic */
+.sec{margin-top:22px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+.sec-h h2{font-size:21px;text-transform:uppercase}
+.sec-h small{color:var(--ink-3)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.muted{color:var(--ink-3)}
+.small{font-size:13px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;min-height:44px;padding:0 14px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn.sm{min-height:36px;padding:0 10px;font-size:13px;border-radius:8px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;min-height:34px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none;box-shadow:inset 0 0 0 2px rgba(0,0,0,.12)}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:2px 8px;border-radius:6px;background:var(--surface-2);color:var(--ink-2)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:0 12px;font-size:16px}
+label.lbl{display:block;font-size:12px;color:var(--ink-3);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+
+/* week */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.day{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 2px;text-align:center;min-height:62px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.day b{font-family:var(--display);font-size:15px}
+.day span{font-size:10px;line-height:1.2;color:var(--ink-3);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.day.today b{color:var(--accent)}
+.day[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.day .pd{display:flex;gap:2px}
+.day .pd i{width:6px;height:6px;border-radius:50%}
+
+/* plan preview */
+.blk{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:8px 0;border-top:1px dashed var(--line)}
+.blk:first-child{border-top:0}
+.blk-l{font-family:var(--display);font-size:20px;color:var(--ink-3);line-height:1.2}
+.blk ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+.blk li{display:flex;align-items:center;gap:6px;font-size:14px}
+.blk li .muted{margin-left:auto;font-size:12px;white-space:nowrap}
+
+/* group freshness */
+.fresh{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fresh .f{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.fresh .f b{font-weight:600}
+.fresh .f small{display:block;color:var(--ink-3);font-size:12px}
+
+/* library */
+.search{position:sticky;top:calc(env(safe-area-inset-top,0px) + 52px);z-index:15;background:var(--bg);padding-block:4px 10px;display:flex;flex-direction:column;gap:8px}
+.search-box{position:relative}
+.search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-3)}
+.search-box .input{padding-left:38px}
+.gsec{margin-top:16px}
+.gsec h3{font-size:18px;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.gsec h3 small{font-family:var(--body);font-size:12px;font-weight:500;color:var(--ink-3);text-transform:none}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ex-row{width:100%;display:flex;align-items:center;gap:10px;padding:11px 12px;background:none;border:0;border-top:1px solid var(--line);text-align:left;min-height:56px}
+.ex-row:first-child{border-top:0}
+.ex-main{flex:1;min-width:0}
+.ex-main b{display:block;font-weight:600;font-size:15px;line-height:1.25}
+.ex-main small{display:block;color:var(--ink-3);font-size:12px;line-height:1.3;margin-top:1px}
+.ex-meta{text-align:right;font-size:12px;color:var(--ink-3);white-space:nowrap}
+.ex-meta b{display:block;font-family:var(--display);font-size:17px;color:var(--ink);font-weight:700}
+.ex-meta.done{color:var(--ok)}
+.chk{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);flex:none;display:grid;place-items:center}
+.ex-row[aria-checked="true"] .chk{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.empty{padding:28px 12px;text-align:center;color:var(--ink-3)}
+
+/* plans */
+.plan{display:flex;flex-direction:column;gap:10px}
+.plan-h{display:flex;align-items:flex-start;gap:10px}
+.plan-h h3{font-size:22px;flex:1;line-height:1.1}
+.sched{display:flex;flex-direction:column}
+.sched .srow{display:grid;grid-template-columns:56px 1fr;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+.sched .srow:first-child{border-top:0}
+.sched b{font-family:var(--display);font-size:18px}
+select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+
+/* workout */
+.wo-head{position:sticky;top:calc(env(safe-area-inset-top,0px) + 52px);z-index:14;background:var(--bg);padding-block:2px 10px}
+.wo-bar{display:flex;align-items:center;gap:10px}
+.wo-bar h2{font-size:22px;flex:1;line-height:1.1;text-transform:uppercase}
+.prog{height:6px;background:var(--line);border-radius:3px;margin-top:8px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ok);border-radius:3px;transition:width .3s}
+.ss{padding:0;overflow:hidden}
+.ss-h{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.ss-h h3{font-size:19px;text-transform:uppercase;flex:1}
+.ss.done .ss-h{background:var(--ok-soft)}
+.ss.done .ss-h h3{color:var(--ok)}
+.wex{padding:12px 14px;border-top:1px solid var(--line)}
+.wex:first-of-type{border-top:0}
+.wex-h{display:flex;gap:8px;align-items:flex-start}
+.wex-h .lab{font-family:var(--display);font-size:20px;font-weight:700;color:var(--accent);width:28px;line-height:1.2}
+.wex-h .nm{flex:1;min-width:0}
+.wex-h .nm b{display:block;font-weight:600;line-height:1.25}
+.wex-h .nm small{display:block;font-size:12px;color:var(--ink-3)}
+.wex-acts{display:flex;gap:4px}
+.icon-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--ink-2)}
+.icon-btn svg{width:18px;height:18px}
+.sets{display:grid;grid-template-columns:34px 1fr 1fr 48px;gap:6px 8px;align-items:center;margin-top:10px}
+.sets .hd{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.sets .sn{font-family:var(--display);font-size:17px;color:var(--ink-3);text-align:center}
+.sets input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);text-align:center;font-family:var(--display);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;padding:0 4px}
+.tick{width:48px;height:44px;border-radius:9px;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--ink-3)}
+.tick svg{width:22px;height:22px}
+.tick[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.srow-done input{background:var(--ok-soft);border-color:transparent}
+.ss-f{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line);background:var(--surface-2)}
+
+/* rest bar */
+.rest{position:fixed;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:29;display:flex;justify-content:center;padding-inline:12px;pointer-events:none}
+.rest-in{pointer-events:auto;width:100%;max-width:616px;background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.rest-in .t{font-family:var(--display);font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.rest-in .l{flex:1;min-width:0;font-size:13px;line-height:1.3}
+.rest-in .l b{display:block;font-size:14px}
+.rest-in .ra{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;width:100%}
+.rest-in button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:8px;min-height:40px;padding:0 10px;font-weight:600;font-size:14px}
+
+/* sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet-bg{position:absolute;inset:0;background:rgba(8,12,16,.5)}
+.sheet{position:relative;width:100%;max-width:640px;max-height:92%;background:var(--bg);border-radius:18px 18px 0 0;display:flex;flex-direction:column;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.prog i{transition:none}}
+.sheet-h{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
+.sheet-h h2{font-size:22px;flex:1;text-transform:uppercase;line-height:1.1}
+.sheet-b{overflow-y:auto;padding:4px 16px 16px;flex:1;-webkit-overflow-scrolling:touch}
+.sheet-f{padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);display:flex;gap:8px;background:var(--surface)}
+.sheet-f .btn{flex:1}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0}
+.hist-list{display:flex;flex-direction:column}
+.hist-list .hi{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.hist-list .hi:first-child{border-top:0}
+.chart{width:100%;height:120px;display:block}
+.eblock{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.eblock-h{display:flex;align-items:center;gap:6px}
+.eblock-h b{font-family:var(--display);font-size:19px;flex:1;text-transform:uppercase}
+.erow{display:grid;grid-template-columns:1fr 84px 36px;gap:6px;align-items:center}
+.erow .nm{font-size:14px;line-height:1.25;display:flex;gap:6px;align-items:center;min-width:0}
+.erow .input{min-height:38px;font-size:15px;padding:0 8px;text-align:center}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper .input{text-align:center;width:64px}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:60;max-width:calc(100% - 32px);text-align:center}
+.sess{display:flex;flex-direction:column;gap:6px}
+.sess-h{display:flex;align-items:baseline;gap:8px}
+.sess-h b{font-family:var(--display);font-size:19px;flex:1;text-transform:uppercase}
+.sess ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px;font-size:13px}
+.sess li{display:flex;gap:6px;align-items:center}
+.sess li span:last-child{margin-left:auto;font-family:var(--display);font-size:15px;font-variant-numeric:tabular-nums}
+textarea.input{min-height:120px;padding:10px;font-family:ui-monospace,monospace;font-size:12px}
+.confirm{background:var(--danger-soft);border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
+.foot-note{margin-top:28px;font-size:12px;color:var(--ink-3);text-align:center}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="plates" aria-hidden="true">
+        <i style="background:var(--p-red);height:22px"></i><i style="background:var(--p-blue);height:18px"></i><i style="background:var(--p-yellow);height:14px"></i><i style="background:var(--p-green);height:10px"></i>
+      </span>
+      <h1>Sổ Tập Tạ</h1>
+    </div>
+    <span class="pill" id="sync">Lưu trên máy này</span>
+  </header>
+  <main id="view"></main>
+  <p class="foot-note">Màu nhóm cơ lấy theo màu bánh tạ Olympic: đỏ 25 · xanh dương 20 · vàng 15 · xanh lá 10.</p>
+</div>
+
+<div class="rest" id="rest" hidden></div>
+
+<nav class="tabbar" aria-label="Điều hướng">
+  <div class="tabbar-in" role="tablist">
+    <button class="tab" role="tab" data-tab="today" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Buổi tập</button>
+    <button class="tab" role="tab" data-tab="plans" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Kế hoạch</button>
+    <button class="tab" role="tab" data-tab="lib" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>Bài tập</button>
+    <button class="tab" role="tab" data-tab="hist" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4M12 8v4l3 2"/></svg>Lịch sử</button>
+  </div>
+</nav>
+
+<div id="sheets"></div>
+
+<script>
+/* ============ DATA ============ */
+const GROUPS = {
+  nguc:{n:'Ngực', c:'var(--p-red)'},
+  lung:{n:'Lưng', c:'var(--p-blue)'},
+  vai:{n:'Vai', c:'var(--p-yellow)'},
+  tay:{n:'Tay', c:'var(--p-green)'},
+  chan:{n:'Chân', c:'var(--p-black)'},
+  core:{n:'Core', c:'var(--p-white)'}
+};
+const GKEYS = Object.keys(GROUPS);
+// id|nhóm|tên VN|tên EN|dụng cụ|cơ chính|loại (c=bài đa khớp, i=bài cô lập, b=trọng lượng cơ thể, t=tính giây)
+const RAW = `
+bb-bench|nguc|Đẩy ngực ngang tạ đòn|Barbell Bench Press|Tạ đòn|Ngực giữa|c
+bb-incline|nguc|Đẩy ngực dốc lên tạ đòn|Incline Barbell Press|Tạ đòn|Ngực trên|c
+bb-decline|nguc|Đẩy ngực dốc xuống tạ đòn|Decline Bench Press|Tạ đòn|Ngực dưới|c
+db-bench|nguc|Đẩy ngực ngang tạ đơn|Dumbbell Bench Press|Tạ đơn|Ngực giữa|c
+db-incline|nguc|Đẩy ngực dốc lên tạ đơn|Incline Dumbbell Press|Tạ đơn|Ngực trên|c
+db-decline|nguc|Đẩy ngực dốc xuống tạ đơn|Decline Dumbbell Press|Tạ đơn|Ngực dưới|c
+smith-incline|nguc|Đẩy ngực dốc lên máy Smith|Incline Smith Press|Máy Smith|Ngực trên|c
+chest-press|nguc|Đẩy ngực máy|Chest Press Machine|Máy|Ngực giữa|c
+db-fly|nguc|Ép ngực tạ đơn|Dumbbell Fly|Tạ đơn|Ngực giữa|i
+db-incline-fly|nguc|Ép ngực dốc lên tạ đơn|Incline Dumbbell Fly|Tạ đơn|Ngực trên|i
+cable-cross|nguc|Ép ngực cáp|Cable Crossover|Cáp|Ngực giữa, ngực dưới|i
+cable-low-fly|nguc|Ép ngực cáp thấp lên cao|Low-to-High Cable Fly|Cáp|Ngực trên|i
+pec-deck|nguc|Ép ngực máy|Pec Deck|Máy|Ngực giữa|i
+db-pullover|nguc|Kéo tạ đơn qua đầu|Dumbbell Pullover|Tạ đơn|Ngực, xô|i
+pushup|nguc|Hít đất|Push-up|Trọng lượng cơ thể|Ngực giữa|b
+decline-pushup|nguc|Hít đất chân cao|Decline Push-up|Trọng lượng cơ thể|Ngực trên|b
+chest-dip|nguc|Chống xà kép nghiêng người|Chest Dip|Xà kép|Ngực dưới, tay sau|b
+pullup|lung|Kéo xà đơn tay sấp|Pull-up|Xà đơn|Xô|b
+chinup|lung|Kéo xà đơn tay ngửa|Chin-up|Xà đơn|Xô, tay trước|b
+lat-pulldown|lung|Kéo cáp xuống tay rộng|Lat Pulldown|Cáp|Xô|c
+cg-pulldown|lung|Kéo cáp xuống tay hẹp|Close-grip Pulldown|Cáp|Xô dưới|c
+bb-row|lung|Chèo tạ đòn|Barbell Row|Tạ đòn|Lưng giữa, xô|c
+db-row|lung|Chèo tạ đơn một tay|One-arm Dumbbell Row|Tạ đơn|Xô|c
+cable-row|lung|Chèo cáp ngồi|Seated Cable Row|Cáp|Lưng giữa|c
+tbar-row|lung|Chèo T-bar|T-Bar Row|Tạ đòn|Lưng giữa|c
+cs-row|lung|Chèo máy tựa ngực|Chest-supported Row|Máy|Lưng giữa|c
+inverted-row|lung|Chèo ngược người|Inverted Row|Trọng lượng cơ thể|Lưng giữa|b
+deadlift|lung|Deadlift|Conventional Deadlift|Tạ đòn|Lưng dưới, đùi sau, mông|c
+rack-pull|lung|Kéo tạ từ giá|Rack Pull|Tạ đòn|Lưng trên, lưng dưới|c
+straight-pulldown|lung|Kéo cáp tay thẳng|Straight-arm Pulldown|Cáp|Xô|i
+back-ext|lung|Duỗi lưng trên ghế La Mã|Back Extension|Ghế|Lưng dưới|b
+ohp|vai|Đẩy vai tạ đòn đứng|Overhead Press|Tạ đòn|Vai trước|c
+db-shoulder|vai|Đẩy vai tạ đơn ngồi|Seated Dumbbell Press|Tạ đơn|Vai trước, vai giữa|c
+arnold|vai|Đẩy vai Arnold|Arnold Press|Tạ đơn|Vai trước, vai giữa|c
+machine-shoulder|vai|Đẩy vai máy|Machine Shoulder Press|Máy|Vai trước|c
+landmine|vai|Đẩy landmine|Landmine Press|Tạ đòn|Vai trước, ngực trên|c
+lat-raise|vai|Dang tạ đơn ngang|Lateral Raise|Tạ đơn|Vai giữa|i
+cable-lat-raise|vai|Dang cáp ngang một tay|Cable Lateral Raise|Cáp|Vai giữa|i
+front-raise|vai|Nâng tạ trước mặt|Front Raise|Tạ đơn|Vai trước|i
+rear-fly|vai|Bay vai sau tạ đơn|Rear Delt Fly|Tạ đơn|Vai sau|i
+reverse-pec|vai|Bay vai sau máy|Reverse Pec Deck|Máy|Vai sau|i
+face-pull|vai|Kéo cáp về mặt|Face Pull|Cáp|Vai sau, cơ thang|i
+upright-row|vai|Kéo tạ lên cằm|Upright Row|Tạ đòn|Vai giữa, cơ thang|c
+shrug|vai|Nhún vai tạ đơn|Dumbbell Shrug|Tạ đơn|Cơ thang|i
+bb-curl|tay|Cuốn tạ đòn|Barbell Curl|Tạ đòn|Tay trước|i
+ez-curl|tay|Cuốn tạ EZ|EZ-bar Curl|Tạ EZ|Tay trước|i
+db-curl|tay|Cuốn tạ đơn|Dumbbell Curl|Tạ đơn|Tay trước|i
+hammer|tay|Cuốn búa|Hammer Curl|Tạ đơn|Tay trước, cẳng tay|i
+incline-curl|tay|Cuốn tạ đơn ghế dốc|Incline Dumbbell Curl|Tạ đơn|Tay trước (đầu dài)|i
+preacher|tay|Cuốn ghế Preacher|Preacher Curl|Tạ EZ|Tay trước (đầu ngắn)|i
+cable-curl|tay|Cuốn cáp|Cable Curl|Cáp|Tay trước|i
+conc-curl|tay|Cuốn tập trung|Concentration Curl|Tạ đơn|Tay trước|i
+pushdown|tay|Đè cáp tay sau thanh thẳng|Triceps Pushdown|Cáp|Tay sau|i
+rope-pushdown|tay|Đè cáp dây thừng|Rope Pushdown|Cáp|Tay sau|i
+oh-ext|tay|Duỗi tay sau qua đầu|Overhead Triceps Extension|Tạ đơn/Cáp|Tay sau (đầu dài)|i
+skull|tay|Duỗi tay sau nằm|Skull Crusher|Tạ EZ|Tay sau|i
+cg-bench|tay|Đẩy ngực tay hẹp|Close-grip Bench Press|Tạ đòn|Tay sau, ngực|c
+tri-dip|tay|Chống xà kép thẳng người|Triceps Dip|Xà kép|Tay sau|b
+kickback|tay|Đá tạ ra sau|Triceps Kickback|Tạ đơn|Tay sau|i
+bench-dip|tay|Chống ghế tay sau|Bench Dip|Ghế|Tay sau|b
+wrist-curl|tay|Cuốn cổ tay|Wrist Curl|Tạ đơn|Cẳng tay|i
+reverse-curl|tay|Cuốn tay nắm ngược|Reverse Curl|Tạ EZ|Cẳng tay, tay trước|i
+squat|chan|Squat tạ đòn|Back Squat|Tạ đòn|Đùi trước, mông|c
+front-squat|chan|Squat tạ trước ngực|Front Squat|Tạ đòn|Đùi trước|c
+goblet|chan|Squat ôm tạ|Goblet Squat|Tạ đơn|Đùi trước, mông|c
+leg-press|chan|Đạp đùi máy|Leg Press|Máy|Đùi trước, mông|c
+hack-squat|chan|Squat máy Hack|Hack Squat|Máy|Đùi trước|c
+bulgarian|chan|Squat một chân Bulgaria|Bulgarian Split Squat|Tạ đơn|Đùi trước, mông|c
+lunge|chan|Bước chùng đi bộ|Walking Lunge|Tạ đơn|Đùi trước, mông|c
+step-up|chan|Bước lên bục|Step-up|Tạ đơn|Đùi trước, mông|c
+rdl|chan|Deadlift chân thẳng kiểu Romania|Romanian Deadlift|Tạ đòn|Đùi sau, mông|c
+sumo-dl|chan|Deadlift chân rộng|Sumo Deadlift|Tạ đòn|Mông, đùi trong|c
+good-morning|chan|Gập hông tạ đòn|Good Morning|Tạ đòn|Đùi sau, lưng dưới|c
+hip-thrust|chan|Đẩy hông tạ đòn|Hip Thrust|Tạ đòn|Mông|c
+glute-bridge|chan|Nâng hông nằm|Glute Bridge|Trọng lượng cơ thể|Mông|b
+leg-ext|chan|Đá đùi trước máy|Leg Extension|Máy|Đùi trước|i
+lying-curl|chan|Móc đùi sau nằm|Lying Leg Curl|Máy|Đùi sau|i
+seated-curl|chan|Móc đùi sau ngồi|Seated Leg Curl|Máy|Đùi sau|i
+adduction|chan|Khép đùi máy|Hip Adduction|Máy|Đùi trong|i
+abduction|chan|Dạng đùi máy|Hip Abduction|Máy|Mông ngoài|i
+calf-stand|chan|Nhón bắp chân đứng|Standing Calf Raise|Máy|Bắp chân|i
+calf-seat|chan|Nhón bắp chân ngồi|Seated Calf Raise|Máy|Bắp chân (cơ dép)|i
+plank|core|Plank|Plank|Trọng lượng cơ thể|Bụng sâu|t
+side-plank|core|Plank nghiêng|Side Plank|Trọng lượng cơ thể|Cơ liên sườn|t
+hollow|core|Giữ thân hình thuyền|Hollow Hold|Trọng lượng cơ thể|Bụng|t
+crunch|core|Gập bụng|Crunch|Trọng lượng cơ thể|Bụng trên|b
+cable-crunch|core|Gập bụng cáp quỳ|Cable Crunch|Cáp|Bụng|i
+hanging-raise|core|Nâng chân treo xà|Hanging Leg Raise|Xà đơn|Bụng dưới|b
+lying-raise|core|Nâng chân nằm|Lying Leg Raise|Trọng lượng cơ thể|Bụng dưới|b
+v-up|core|Gập bụng chữ V|V-up|Trọng lượng cơ thể|Bụng|b
+bicycle|core|Đạp xe trên không|Bicycle Crunch|Trọng lượng cơ thể|Bụng, liên sườn|b
+russian-twist|core|Xoay người kiểu Nga|Russian Twist|Tạ đĩa|Cơ liên sườn|b
+ab-wheel|core|Lăn bánh xe bụng|Ab Wheel Rollout|Bánh xe|Bụng sâu|b
+dead-bug|core|Bọ chết|Dead Bug|Trọng lượng cơ thể|Bụng sâu|b
+pallof|core|Giữ cáp chống xoay|Pallof Press|Cáp|Bụng sâu, liên sườn|i
+woodchop|core|Chặt gỗ cáp|Cable Woodchopper|Cáp|Cơ liên sườn|i
+climber|core|Leo núi|Mountain Climber|Trọng lượng cơ thể|Bụng, tim mạch|t
+farmer|core|Xách tạ đi bộ|Farmer's Carry|Tạ đơn|Bụng sâu, cẳng tay|t
+`;
+const EX = {}; const EXL = [];
+RAW.trim().split('\n').forEach(line => {
+  const [id,g,vn,en,eq,mu,k] = line.split('|');
+  const e = {id,g,vn,en,eq,mu,k, q:''};
+  e.q = norm([vn,en,eq,mu,GROUPS[g].n].join(' '));
+  EX[id] = e; EXL.push(e);
+});
+const DEF_REPS = {c:'6-10', i:'10-15', b:'8-15', t:'30-45'};
+const unitOf = id => EX[id] && EX[id].k === 't' ? 'giây' : 'lần';
+
+function defaultPlans(){
+  return [
+    {id:'p-push-pull', name:'Ngực + Lưng', blocks:[
+      {sets:4, rest:120, ex:[{id:'bb-bench',reps:'6-8'},{id:'bb-row',reps:'6-8'}]},
+      {sets:3, rest:90, ex:[{id:'db-incline',reps:'8-10'},{id:'lat-pulldown',reps:'8-10'}]},
+      {sets:3, rest:75, ex:[{id:'cable-cross',reps:'12-15'},{id:'cable-row',reps:'10-12'}]},
+      {sets:3, rest:60, ex:[{id:'hanging-raise',reps:'10-15'},{id:'plank',reps:'45'}]}
+    ]},
+    {id:'p-shoulder-arm', name:'Vai + Tay', blocks:[
+      {sets:4, rest:90, ex:[{id:'db-shoulder',reps:'8-10'},{id:'face-pull',reps:'12-15'}]},
+      {sets:3, rest:60, ex:[{id:'lat-raise',reps:'12-15'},{id:'rear-fly',reps:'12-15'}]},
+      {sets:3, rest:75, ex:[{id:'bb-curl',reps:'8-10'},{id:'pushdown',reps:'10-12'}]},
+      {sets:3, rest:60, ex:[{id:'hammer',reps:'10-12'},{id:'oh-ext',reps:'10-12'}]}
+    ]},
+    {id:'p-leg-core', name:'Chân + Core', blocks:[
+      {sets:4, rest:120, ex:[{id:'squat',reps:'6-8'},{id:'ab-wheel',reps:'8-12'}]},
+      {sets:3, rest:90, ex:[{id:'rdl',reps:'8-10'},{id:'calf-stand',reps:'12-15'}]},
+      {sets:3, rest:75, ex:[{id:'leg-ext',reps:'12-15'},{id:'lying-curl',reps:'10-12'}]},
+      {sets:3, rest:60, ex:[{id:'bulgarian',reps:'8-10'},{id:'pallof',reps:'10-12'}]}
+    ]}
+  ];
+}
+
+/* ============ UTIL ============ */
+function norm(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[đĐ]/g,'d').toLowerCase().trim()}
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const isoDate = (d=new Date()) => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const uid = () => Math.random().toString(36).slice(2,9);
+const clone = o => JSON.parse(JSON.stringify(o));
+function daysAgo(iso){ if(!iso) return null; const [y,m,d]=iso.split('-').map(Number); const t=new Date(); t.setHours(0,0,0,0); return Math.round((t - new Date(y,m-1,d))/864e5); }
+function agoText(n){ if(n==null) return 'Chưa tập'; if(n<=0) return 'Hôm nay'; if(n===1) return 'Hôm qua'; return n+' ngày trước'; }
+function fmtDate(iso){ const [y,m,d]=iso.split('-'); const dt=new Date(+y,+m-1,+d); return DOW[dt.getDay()]+', '+d+'/'+m+'/'+y; }
+const DOW = ['CN','T2','T3','T4','T5','T6','T7'];
+const DOW_ORDER = [1,2,3,4,5,6,0];
+const DOW_FULL = {1:'Thứ 2',2:'Thứ 3',3:'Thứ 4',4:'Thứ 5',5:'Thứ 6',6:'Thứ 7',0:'Chủ nhật'};
+const LETTERS = 'ABCDEFGHIJKLMNOP';
+const numOr = (v, d=0) => { const n = parseFloat(String(v).replace(',','.')); return isFinite(n) ? n : d; };
+const fmtKg = kg => kg > 0 ? (Math.round(kg*100)/100)+' kg' : 'Không tạ';
+function fmtSet(s, id){ if(!s) return ''; const u = unitOf(id)==='giây' ? 's' : ''; return (s[0]>0 ? (Math.round(s[0]*100)/100)+'kg × ' : '') + s[1] + u; }
+function topSet(entry){ if(!entry||!entry.s||!entry.s.length) return null; return entry.s.reduce((a,b)=> (b[0]>a[0] || (b[0]===a[0] && b[1]>a[1])) ? b : a); }
+function lastEntry(id){ return (S.logs[id]||[])[0] || null; }
+function lastDone(id){ const e=lastEntry(id); return e ? e.d : null; }
+function groupLast(g){ let best=null; EXL.forEach(e=>{ if(e.g!==g) return; const d=lastDone(e.id); if(d && (!best || d>best)) best=d; }); return best; }
+function planGroups(p){ const s=new Set(); p.blocks.forEach(b=>b.ex.forEach(x=>EX[x.id]&&s.add(EX[x.id].g))); return GKEYS.filter(g=>s.has(g)); }
+function planDots(p){ return planGroups(p).map(g=>`<i style="background:${GROUPS[g].c}"></i>`).join(''); }
+function planById(id){ return S.plans.find(p=>p.id===id); }
+
+/* ============ STATE & STORAGE ============ */
+const LS_KEY = 'sotapta.v1', LS_ACTIVE = 'sotapta.active.v1';
+let S = {plans: defaultPlans(), schedule:{1:'p-push-pull',3:'p-shoulder-arm',5:'p-leg-core'}, logs:{}, sessions:[]};
+let A = null;           // buổi tập đang diễn ra
+function lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+const saved = lsGet(LS_KEY); if(saved && saved.plans) S = Object.assign(S, saved);
+A = lsGet(LS_ACTIVE);
+
+let db = null, dbUid = null, lastSynced = {core:'', logs:''}, writing = Promise.resolve(), saveTimer = null;
+const coreDoc = () => db.doc('data/users/'+dbUid+'/core');
+const logsDoc = () => db.doc('data/users/'+dbUid+'/logs');
+function corePart(){ return {plans:S.plans, schedule:S.schedule, sessions:S.sessions.slice(0,150)}; }
+function logsPart(){ const l={}; for(const k in S.logs) l[k]=S.logs[k].slice(0,25); return {logs:l}; }
+function setSync(txt, ok){ const el=$('#sync'); el.textContent=txt; el.classList.toggle('ok', !!ok); }
+function save(){
+  lsSet(LS_KEY, S);
+  if(!db) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(pushDb, 900);
+}
+function pushDb(){
+  writing = writing.then(async () => {
+    const c = JSON.stringify(corePart()), l = JSON.stringify(logsPart());
+    if(c===lastSynced.core && l===lastSynced.logs) return;
+    setSync('Đang lưu…');
+    try{
+      if(c!==lastSynced.core){ await coreDoc().set(JSON.parse(c)); lastSynced.core=c; }
+      if(l!==lastSynced.logs){ await logsDoc().set(JSON.parse(l)); lastSynced.logs=l; }
+      setSync('Đã lưu vào tài khoản', true);
+    }catch(e){ setSync('Chỉ lưu trên máy'); }
+  });
+}
+function saveActive(){ lsSet(LS_ACTIVE, A); }
+
+async function initDb(){
+  if(!window.claude || !window.claude.use) return;
+  try{
+    const [d, u] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    if(!d || !u) return;
+    const id = await u.id(); if(!id) return;
+    db = d; dbUid = id;
+    const [cs, ls] = await Promise.all([coreDoc().get(), logsDoc().get()]);
+    if(cs.exists){ const c=cs.data(); S.plans=c.plans||S.plans; S.schedule=c.schedule||{}; S.sessions=c.sessions||[]; lastSynced.core=JSON.stringify(corePart()); }
+    if(ls.exists){ S.logs = clone(ls.data().logs||{}); lastSynced.logs=JSON.stringify(logsPart()); }
+    S.plans = clone(S.plans); S.schedule = clone(S.schedule); S.sessions = clone(S.sessions);
+    lsSet(LS_KEY, S);
+    setSync('Đã lưu vào tài khoản', true);
+    if(!cs.exists || !ls.exists) pushDb();
+    render();
+  }catch(e){ db=null; setSync('Chỉ lưu trên máy'); }
+}
+
+/* ============ UI STATE ============ */
+let tab = 'today';
+const UI = { day: new Date().getDay(), q:'', gf:'all', sort:'group', delPlan:null };
+let toastT = null;
+function toast(msg){ let t=$('#toast'); if(!t){ t=document.createElement('div'); t.id='toast'; t.className='toast'; t.setAttribute('role','status'); document.body.appendChild(t);} t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true, 2200); }
+
+/* ============ RENDER ============ */
+function render(){
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===tab)));
+  const v = $('#view');
+  if(tab==='today') v.innerHTML = A ? renderWorkout() : renderToday();
+  else if(tab==='plans') v.innerHTML = renderPlans();
+  else if(tab==='lib') { if(!$('#lib-search')) v.innerHTML = renderLibShell(); renderLibList(); return; }
+  else if(tab==='hist') v.innerHTML = renderHist();
+}
+
+function blockPreview(p){
+  return p.blocks.map((b,i)=>`<div class="blk"><div class="blk-l">${LETTERS[i]}</div><ul>${b.ex.map(x=>{
+    const e=EX[x.id]; if(!e) return ''; const le=lastEntry(x.id); const ts=topSet(le);
+    return `<li><span class="dot" style="--c:${GROUPS[e.g].c}"></span>${esc(e.vn)}<span class="muted">${b.sets}×${esc(x.reps)}${ts?' · '+fmtSet(ts,x.id):''}</span></li>`;}).join('')}</ul></div>`).join('');
+}
+
+function renderToday(){
+  const todayDow = new Date().getDay();
+  const week = DOW_ORDER.map(d=>{
+    const p = planById(S.schedule[d]);
+    return `<button class="day ${d===todayDow?'today':''}" data-act="pick-day" data-d="${d}" aria-pressed="${d===UI.day}">
+      <b>${DOW[d]}</b><span class="pd">${p?planDots(p):''}</span><span>${p?esc(p.name):'Nghỉ'}</span></button>`;
+  }).join('');
+  const p = planById(S.schedule[UI.day]);
+  const dayLabel = UI.day===todayDow ? 'Hôm nay' : DOW_FULL[UI.day];
+  let main;
+  if(p){
+    const lastP = S.sessions.find(s=>s.planId===p.id);
+    main = `<div class="card plan">
+      <div class="plan-h"><div style="flex:1"><div class="muted small">${dayLabel}</div><h3>${esc(p.name)}</h3></div>
+      <span class="tag ${lastP?'ok':''}">${lastP?'Tập lần cuối: '+agoText(daysAgo(lastP.d)).toLowerCase():'Chưa tập lần nào'}</span></div>
+      <div>${blockPreview(p)}</div>
+      <button class="btn pri block" data-act="start" data-id="${p.id}">Bắt đầu buổi tập</button>
+    </div>`;
+  } else {
+    main = `<div class="card stack"><div><div class="muted small">${dayLabel}</div><h3 style="font-size:22px">Ngày nghỉ</h3></div>
+      <p class="muted small" style="margin:0">Chưa gán kế hoạch cho ngày này. Bạn có thể tạo nhanh buổi tập từ những bài lâu chưa tập.</p>
+      <div class="row"><button class="btn pri" data-act="quick">Tạo buổi nhanh</button><button class="btn" data-act="goto" data-tab="plans">Gán kế hoạch</button></div></div>`;
+  }
+  const fresh = GKEYS.map(g=>({g, d:daysAgo(groupLast(g))})).sort((a,b)=>(b.d??9999)-(a.d??9999));
+  const others = S.plans.filter(x=>!p || x.id!==p.id);
+  return `
+  <section class="sec" style="margin-top:6px"><div class="week">${week}</div></section>
+  <section class="sec">${main}</section>
+  <section class="sec"><div class="sec-h"><h2>Nhóm cơ lâu chưa tập</h2><button class="btn sm" data-act="quick">Tạo buổi nhanh</button></div>
+    <div class="fresh">${fresh.map(f=>`<div class="f"><span class="dot" style="--c:${GROUPS[f.g].c}"></span><div><b>${GROUPS[f.g].n}</b><small>${agoText(f.d)}</small></div></div>`).join('')}</div>
+  </section>
+  ${others.length?`<section class="sec"><div class="sec-h"><h2>Kế hoạch khác</h2></div><div class="list">${others.map(o=>{
+    const ls=S.sessions.find(s=>s.planId===o.id);
+    return `<button class="ex-row" data-act="start" data-id="${o.id}"><span class="plates" style="gap:3px">${planDots(o).replace(/<i /g,'<i class="dot" ')}</span><span class="ex-main"><b>${esc(o.name)}</b><small>${o.blocks.length} superset · ${ls?agoText(daysAgo(ls.d)).toLowerCase():'chưa tập'}</small></span><span class="btn sm pri">Tập</span></button>`;}).join('')}</div></section>`:''}`;
+}
+
+/* ---- workout ---- */
+function woStats(){ let t=0,d=0; A.blocks.forEach(b=>b.ex.forEach(x=>x.sets.forEach(s=>{t++; if(s.done) d++;}))); return {t,d}; }
+function blockDone(b){ return b.ex.every(x=>x.sets.every(s=>s.done)); }
+function elapsed(){ const m=Math.floor((Date.now()-A.start)/60000); return m<60? m+' phút' : Math.floor(m/60)+' giờ '+(m%60)+' phút'; }
+function renderWorkout(){
+  const st = woStats();
+  return `<div class="wo-head">
+    <div class="wo-bar"><h2>${esc(A.name)}</h2><button class="btn sm ok" data-act="finish">Kết thúc</button></div>
+    <div class="row small muted" style="margin-top:4px"><span id="wo-time">${elapsed()}</span><span>·</span><span>${st.d}/${st.t} hiệp xong</span></div>
+    <div class="prog"><i style="width:${st.t?Math.round(st.d/st.t*100):0}%"></i></div>
+  </div>
+  <div class="stack">${A.blocks.map((b,bi)=>renderWBlock(b,bi)).join('')}</div>
+  <div class="row" style="margin-top:12px"><button class="btn block" data-act="w-add-block">+ Thêm superset vào buổi này</button></div>`;
+}
+function renderWBlock(b,bi){
+  const done = blockDone(b);
+  return `<div class="card ss ${done?'done':''}">
+    <div class="ss-h"><h3>Superset ${LETTERS[bi]}${done?' · Xong':''}</h3><span class="small muted">${b.ex[0]?b.ex[0].sets.length:0} hiệp · nghỉ ${b.rest}s</span></div>
+    ${b.ex.map((x,xi)=>renderWEx(x,bi,xi)).join('')}
+    <div class="ss-f"><button class="btn sm" data-act="w-add-set" data-b="${bi}">+ Hiệp</button><button class="btn sm" data-act="w-add-ex" data-b="${bi}">+ Bài</button><span style="flex:1"></span><button class="btn sm ${done?'':'ok'}" data-act="w-block-all" data-b="${bi}">${done?'Bỏ đánh dấu':'Xong cả khối'}</button></div>
+  </div>`;
+}
+function renderWEx(x,bi,xi){
+  const e = EX[x.id]; const le = lastEntry(x.id); const u = unitOf(x.id);
+  return `<div class="wex">
+    <div class="wex-h"><span class="lab">${LETTERS[bi]}${xi+1}</span>
+      <div class="nm"><b>${esc(e.vn)}</b><small>Mục tiêu ${esc(x.reps)} ${u}${le?' · Lần trước ('+agoText(daysAgo(le.d)).toLowerCase()+'): '+le.s.map(s=>fmtSet(s,x.id)).join(', '):' · Lần đầu tập'}</small></div>
+      <div class="wex-acts"><button class="icon-btn" title="Đổi bài khác cùng nhóm" aria-label="Đổi bài" data-act="w-swap" data-b="${bi}" data-x="${xi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></button>
+      <button class="icon-btn" title="Bỏ bài này" aria-label="Bỏ bài" data-act="w-rm-ex" data-b="${bi}" data-x="${xi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    </div>
+    <div class="sets"><span class="hd" style="text-align:center">Hiệp</span><span class="hd">Kg</span><span class="hd">${u==='giây'?'Giây':'Số lần'}</span><span></span>
+    ${x.sets.map((s,si)=>`<span class="sn">${si+1}</span>
+      <input id="kg-${bi}-${xi}-${si}" class="${s.done?'srow-done':''}" inputmode="decimal" value="${s.kg||''}" placeholder="0" data-f="kg" data-b="${bi}" data-x="${xi}" data-s="${si}" aria-label="Kg hiệp ${si+1}">
+      <input id="r-${bi}-${xi}-${si}" class="${s.done?'srow-done':''}" inputmode="numeric" value="${s.r||''}" placeholder="${esc(String(x.reps).split('-')[0])}" data-f="r" data-b="${bi}" data-x="${xi}" data-s="${si}" aria-label="Số lần hiệp ${si+1}">
+      <button class="tick" aria-pressed="${!!s.done}" aria-label="Xong hiệp ${si+1}" data-act="w-tick" data-b="${bi}" data-x="${xi}" data-s="${si}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>`).join('')}
+    </div></div>`;
+}
+function mkSets(id, n, reps){
+  const le = lastEntry(id); const ts = topSet(le);
+  const out = [];
+  for(let i=0;i<n;i++){
+    const prev = le && le.s[i] ? le.s[i] : ts;
+    out.push({kg: prev? prev[0] : '', r: prev? prev[1] : '', done:false});
+  }
+  return out;
+}
+function startWorkout(plan){
+  A = {planId:plan.id||null, name:plan.name, start:Date.now(), blocks: plan.blocks.map(b=>({rest:b.rest, ex:b.ex.map(x=>({id:x.id, reps:x.reps, sets:mkSets(x.id, b.sets, x.reps)}))}))};
+  saveActive(); tab='today'; closeAllSheets(); render(); window.scrollTo(0,0);
+  try{ navigator.wakeLock && navigator.wakeLock.request('screen').catch(()=>{}); }catch(e){}
+}
+
+/* rest timer */
+let restEnd = 0, restLabel = '', restIv = null;
+function startRest(sec, label){
+  restEnd = Date.now()+sec*1000; restLabel = label;
+  clearInterval(restIv); restIv = setInterval(tickRest, 250); tickRest();
+}
+function stopRest(){ clearInterval(restIv); restIv=null; $('#rest').hidden=true; }
+function tickRest(){
+  const left = Math.max(0, Math.ceil((restEnd-Date.now())/1000));
+  const el = $('#rest'); el.hidden=false;
+  el.innerHTML = `<div class="rest-in" role="timer"><span class="t">${Math.floor(left/60)}:${pad(left%60)}</span><span class="l"><b>${left?'Đang nghỉ':'Hết giờ nghỉ!'}</b>${esc(restLabel)}</span>
+    <span class="ra"><button data-act="rest-add" data-v="-15">−15 giây</button><button data-act="rest-add" data-v="15">+15 giây</button><button data-act="rest-stop">${left?'Bỏ qua nghỉ':'Đóng'}</button></span></div>`;
+  if(left===0 && restIv){ clearInterval(restIv); restIv=null; try{ navigator.vibrate && navigator.vibrate([300,120,300]); }catch(e){} }
+}
+
+function finishWorkout(){
+  const today = isoDate(); const exSum = [];
+  A.blocks.forEach(b=>b.ex.forEach(x=>{
+    const done = x.sets.filter(s=>s.done).map(s=>[numOr(s.kg), Math.round(numOr(s.r))]);
+    if(!done.length) return;
+    const arr = S.logs[x.id] = (S.logs[x.id]||[]).filter(e=>e.d!==today || e.sess!==A.start);
+    arr.unshift({d:today, s:done, sess:A.start});
+    S.logs[x.id] = arr.slice(0,25);
+    exSum.push({id:x.id, top:topSet({s:done}), n:done.length});
+  }));
+  if(exSum.length){
+    S.sessions.unshift({id:uid(), d:today, planId:A.planId, name:A.name, min:Math.max(1,Math.round((Date.now()-A.start)/60000)), ex:exSum});
+    S.sessions = S.sessions.slice(0,150);
+  }
+  A = null; saveActive(); save(); stopRest(); closeAllSheets(); render();
+  toast(exSum.length ? 'Đã lưu buổi tập: '+exSum.length+' bài' : 'Buổi tập không có hiệp nào xong nên không lưu');
+}
+
+/* ---- plans ---- */
+function renderPlans(){
+  const sched = DOW_ORDER.map(d=>`<div class="srow"><b>${DOW[d]}</b><select id="sch-${d}" class="input" data-act="sched" data-d="${d}" aria-label="Kế hoạch ${DOW_FULL[d]}"><option value="">Nghỉ</option>${S.plans.map(p=>`<option value="${p.id}" ${S.schedule[d]===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>`).join('');
+  const plans = S.plans.map(p=>{
+    const days = DOW_ORDER.filter(d=>S.schedule[d]===p.id).map(d=>DOW[d]);
+    const ls = S.sessions.find(s=>s.planId===p.id);
+    return `<div class="card plan">
+      <div class="plan-h"><h3>${esc(p.name)}</h3><span class="tag">${days.length?days.join(', '):'Chưa gán ngày'}</span></div>
+      <div class="row">${planGroups(p).map(g=>`<span class="tag"><span class="dot" style="--c:${GROUPS[g].c};width:9px;height:9px"></span>${GROUPS[g].n}</span>`).join('')}<span class="small muted">${ls?'Tập lần cuối '+agoText(daysAgo(ls.d)).toLowerCase():'Chưa tập'}</span></div>
+      <div>${blockPreview(p)}</div>
+      ${UI.delPlan===p.id?`<div class="confirm">Xóa kế hoạch “${esc(p.name)}”? Lịch sử tập vẫn giữ.<span style="flex:1"></span><button class="btn sm" data-act="del-cancel">Không</button><button class="btn sm danger" data-act="del-plan" data-id="${p.id}">Xóa</button></div>`:''}
+      <div class="row"><button class="btn pri sm" data-act="start" data-id="${p.id}">Tập</button><button class="btn sm" data-act="edit-plan" data-id="${p.id}">Sửa</button><button class="btn sm" data-act="dup-plan" data-id="${p.id}">Nhân bản</button><span style="flex:1"></span><button class="btn sm ghost" data-act="del-ask" data-id="${p.id}">Xóa</button></div>
+    </div>`;}).join('');
+  return `
+  <section class="sec" style="margin-top:6px"><div class="sec-h"><h2>Lịch tuần</h2><small>Chọn kế hoạch cho từng ngày</small></div><div class="card sched">${sched}</div></section>
+  <section class="sec"><div class="sec-h"><h2>Kế hoạch superset</h2></div>
+    <div class="row" style="margin-bottom:10px"><button class="btn pri" data-act="new-plan">+ Kế hoạch mới</button><button class="btn" data-act="quick">Tạo nhanh tự động</button></div>
+    <div class="stack">${plans || '<div class="card empty">Chưa có kế hoạch nào.</div>'}</div></section>`;
+}
+
+/* ---- library ---- */
+function renderLibShell(){
+  return `<div class="search">
+    <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>
+    <input id="lib-search" class="input" type="search" placeholder="Tìm bài: ngực, squat, cáp, tay sau…" value="${esc(UI.q)}" autocomplete="off" aria-label="Tìm bài tập"></div>
+    <div class="chips" id="lib-chips"></div>
+  </div><div id="lib-list"></div>`;
+}
+function exMeta(id){
+  const le = lastEntry(id); if(!le) return `<span class="ex-meta">Chưa tập</span>`;
+  const n = daysAgo(le.d); const ts = topSet(le);
+  return `<span class="ex-meta ${n<=7?'done':''}"><b>${ts?(ts[0]>0?(Math.round(ts[0]*100)/100)+'kg':ts[1]+(unitOf(id)==='giây'?'s':'')):''}</b>${n<=7?'✓ ':''}${agoText(n)}</span>`;
+}
+function exRow(e, opts={}){
+  const pick = opts.pick;
+  return `<button class="ex-row" data-act="${pick?'pick-toggle':'ex-detail'}" data-id="${e.id}" ${pick?`role="checkbox" aria-checked="${opts.checked?'true':'false'}"`:''}>
+    ${pick?`<span class="chk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span>`:''}
+    <span class="dot" style="--c:${GROUPS[e.g].c}"></span>
+    <span class="ex-main"><b>${esc(e.vn)}</b><small>${esc(e.en)} · ${esc(e.eq)} · ${esc(e.mu)}</small></span>${exMeta(e.id)}</button>`;
+}
+function filterEx(q, gf){
+  const nq = norm(q).split(/\s+/).filter(Boolean);
+  return EXL.filter(e => (gf==='all'||e.g===gf) && nq.every(w=>e.q.includes(w)));
+}
+function chipsHtml(gf, act, extra=''){
+  return `<button class="chip" data-act="${act}" data-g="all" aria-pressed="${gf==='all'}">Tất cả</button>`+GKEYS.map(g=>`<button class="chip" data-act="${act}" data-g="${g}" aria-pressed="${gf===g}"><span class="dot" style="--c:${GROUPS[g].c};width:10px;height:10px"></span>${GROUPS[g].n}</button>`).join('')+extra;
+}
+function renderLibList(){
+  $('#lib-chips').innerHTML = chipsHtml(UI.gf,'lib-g') + `<button class="chip" data-act="lib-sort" aria-pressed="${UI.sort==='stale'}">Lâu chưa tập trước</button>`;
+  const list = filterEx(UI.q, UI.gf);
+  const box = $('#lib-list');
+  if(!list.length){ box.innerHTML = `<div class="card empty" style="margin-top:12px">Không tìm thấy bài nào cho “${esc(UI.q)}”.</div>`; return; }
+  if(UI.sort==='stale'){
+    const s = list.slice().sort((a,b)=>(daysAgo(lastDone(b.id))??9999)-(daysAgo(lastDone(a.id))??9999));
+    box.innerHTML = `<div class="gsec"><h3>${s.length} bài <small>sắp theo lâu chưa tập</small></h3><div class="list">${s.map(e=>exRow(e)).join('')}</div></div>`;
+    return;
+  }
+  box.innerHTML = GKEYS.map(g=>{
+    const items = list.filter(e=>e.g===g); if(!items.length) return '';
+    const doneN = items.filter(e=>{const n=daysAgo(lastDone(e.id)); return n!=null && n<=7;}).length;
+    return `<div class="gsec"><h3><span class="dot" style="--c:${GROUPS[g].c}"></span>${GROUPS[g].n} <small>${items.length} bài${doneN?' · '+doneN+' bài đã tập trong 7 ngày':''}</small></h3><div class="list">${items.map(e=>exRow(e)).join('')}</div></div>`;
+  }).join('');
+}
+
+/* ---- history ---- */
+function renderHist(){
+  const byMonth = {};
+  S.sessions.forEach(s=>{ const k=s.d.slice(0,7); (byMonth[k]=byMonth[k]||[]).push(s); });
+  const body = Object.keys(byMonth).map(k=>`<div class="sec"><div class="sec-h"><h2>Tháng ${+k.slice(5)}/${k.slice(0,4)}</h2><small>${byMonth[k].length} buổi</small></div><div class="stack">${byMonth[k].map(s=>`
+    <div class="card sess"><div class="sess-h"><b>${esc(s.name)}</b><span class="small muted">${fmtDate(s.d)}${s.min?' · '+s.min+' phút':''}</span></div>
+    <ul>${s.ex.map(x=>{const e=EX[x.id]; return e?`<li><span class="dot" style="--c:${GROUPS[e.g].c};width:9px;height:9px"></span><span>${esc(e.vn)} <span class="muted">(${x.n} hiệp)</span></span><span>${fmtSet(x.top,x.id)}</span></li>`:'';}).join('')}</ul></div>`).join('')}</div></div>`).join('');
+  return `${body || '<div class="card empty" style="margin-top:12px">Chưa có buổi tập nào. Bấm “Kết thúc” sau khi tập để lưu vào đây.</div>'}
+  <section class="sec"><div class="sec-h"><h2>Sao lưu dữ liệu</h2></div>
+    <div class="card stack"><p class="small muted" style="margin:0">Sao chép toàn bộ kế hoạch, số kg và lịch sử thành đoạn mã. Dán lại vào ô khôi phục khi đổi máy.</p>
+    <div class="row"><button class="btn" data-act="export">Sao chép dữ liệu</button><button class="btn" data-act="import-open">Khôi phục</button></div></div></section>`;
+}
+
+/* ============ SHEETS ============ */
+const sheetStack = [];
+function openSheet({title, body, foot, onClick, onInput, id}){
+  const w = document.createElement('div'); w.className='sheet-wrap';
+  w.innerHTML = `<div class="sheet-bg" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-h"><h2>${esc(title)}</h2><button class="icon-btn" data-close aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="sheet-b"></div>${foot!=null?'<div class="sheet-f"></div>':''}</div>`;
+  const sh = {el:w, id, set(b,f){ w.querySelector('.sheet-b').innerHTML=b; if(f!=null && w.querySelector('.sheet-f')) w.querySelector('.sheet-f').innerHTML=f; }};
+  sh.set(body, foot);
+  w.addEventListener('click', ev=>{ if(ev.target.closest('[data-close]')){ closeSheet(); return; } onClick && onClick(ev, sh); });
+  onInput && w.addEventListener('input', ev=>onInput(ev, sh));
+  $('#sheets').appendChild(w); sheetStack.push(sh); document.body.style.overflow='hidden';
+  return sh;
+}
+function closeSheet(){ const s=sheetStack.pop(); if(s) s.el.remove(); if(!sheetStack.length) document.body.style.overflow=''; }
+function closeAllSheets(){ while(sheetStack.length) closeSheet(); }
+
+/* picker: chọn bài (nhiều hoặc một) */
+function openPicker({title, multi=true, group='all', sort='group', onDone, max=12}){
+  const st = {q:'', gf:group, sel:[], sort};
+  const listHtml = () => {
+    let l = filterEx(st.q, st.gf);
+    if(st.sort==='stale') l = l.slice().sort((a,b)=>(daysAgo(lastDone(b.id))??9999)-(daysAgo(lastDone(a.id))??9999));
+    return l.length ? `<div class="list">${l.map(e=>exRow(e,{pick:true, checked:st.sel.includes(e.id)})).join('')}</div>` : '<div class="empty">Không có bài phù hợp.</div>';
+  };
+  const head = () => `<div class="search" style="top:0"><div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><input id="pick-q" class="input" type="search" placeholder="Tìm bài…" autocomplete="off" aria-label="Tìm bài"></div><div class="chips" id="pick-chips">${chipsHtml(st.gf,'pk-g')+`<button class="chip" data-act="pk-sort" aria-pressed="${st.sort==='stale'}">Lâu chưa tập trước</button>`}</div></div><div id="pick-list">${listHtml()}</div>`;
+  const foot = () => multi ? `<button class="btn" data-close>Hủy</button><button class="btn pri" data-act="pk-done" ${st.sel.length?'':'disabled'}>Thêm ${st.sel.length||''} bài</button>` : `<button class="btn" data-close>Hủy</button>`;
+  const refresh = sh => { sh.el.querySelector('#pick-list').innerHTML = listHtml(); sh.el.querySelector('#pick-chips').innerHTML = chipsHtml(st.gf,'pk-g')+`<button class="chip" data-act="pk-sort" aria-pressed="${st.sort==='stale'}">Lâu chưa tập trước</button>`; if(multi) sh.el.querySelector('.sheet-f').innerHTML = foot(); };
+  openSheet({title, body:head(), foot:foot(),
+    onInput:(ev,sh)=>{ if(ev.target.id==='pick-q'){ st.q=ev.target.value; sh.el.querySelector('#pick-list').innerHTML=listHtml(); } },
+    onClick:(ev,sh)=>{
+      const b = ev.target.closest('[data-act]'); if(!b) return;
+      const a = b.dataset.act;
+      if(a==='pk-g'){ st.gf=b.dataset.g; refresh(sh); }
+      else if(a==='pk-sort'){ st.sort = st.sort==='stale'?'group':'stale'; refresh(sh); }
+      else if(a==='pick-toggle'){
+        const id=b.dataset.id;
+        if(!multi){ closeSheet(); onDone([id]); return; }
+        const i=st.sel.indexOf(id); if(i>=0) st.sel.splice(i,1); else if(st.sel.length<max) st.sel.push(id); else toast('Tối đa '+max+' bài');
+        b.setAttribute('aria-checked', String(st.sel.includes(id))); sh.el.querySelector('.sheet-f').innerHTML=foot();
+      }
+      else if(a==='pk-done'){ const sel=st.sel.slice(); closeSheet(); onDone(sel); }
+    }});
+}
+
+/* chi tiết bài tập */
+function openDetail(id){
+  const e = EX[id]; const logs = S.logs[id]||[];
+  const u = unitOf(id);
+  const useKg = logs.some(l=>{ const t=topSet(l); return t && t[0]>0; });
+  const pts = logs.slice(0,12).reverse().map(l=>{ const t=topSet(l); return t ? (useKg?t[0]:t[1]) : 0; });
+  let chart = '';
+  if(pts.length>1){
+    const W=320,H=120,P=18; const mx=Math.max(...pts), mn=Math.min(...pts); const rg=(mx-mn)||1;
+    const xy = pts.map((v,i)=>[P+i*(W-2*P)/(pts.length-1), H-P-(v-mn)/rg*(H-2*P)]);
+    const path = xy.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    const last = xy[xy.length-1];
+    chart = `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Biểu đồ mức tạ cao nhất các buổi gần đây">
+      <line x1="${P}" x2="${W-P}" y1="${H-P}" y2="${H-P}" stroke="var(--line)"/>
+      <path d="${path} L ${last[0].toFixed(1)} ${H-P} L ${P} ${H-P} Z" fill="var(--accent-soft)"/>
+      <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="${last[0]}" cy="${last[1]}" r="4.5" fill="var(--accent)"/>
+      <text x="${P}" y="12" font-size="11" fill="var(--ink-3)">Cao nhất ${mx}${useKg?' kg':(u==='giây'?' giây':' lần')}</text></svg>`;
+  }
+  const inPlans = S.plans.filter(p=>p.blocks.some(b=>b.ex.some(x=>x.id===id)));
+  const le = logs[0]; const ts = topSet(le);
+  const body = `<div class="stack">
+    <div class="row"><span class="tag"><span class="dot" style="--c:${GROUPS[e.g].c};width:9px;height:9px"></span>${GROUPS[e.g].n}</span><span class="tag">${esc(e.eq)}</span><span class="tag ${le&&daysAgo(le.d)<=7?'ok':''}">${agoText(le?daysAgo(le.d):null)}</span></div>
+    <dl class="kv"><dt>Tên tiếng Anh</dt><dd>${esc(e.en)}</dd><dt>Cơ chính</dt><dd>${esc(e.mu)}</dd><dt>Gợi ý</dt><dd>${DEF_REPS[e.k]} ${u}/hiệp</dd>${ts?`<dt>Mức gần nhất</dt><dd><b>${fmtSet(ts,id)}</b></dd>`:''}${inPlans.length?`<dt>Có trong</dt><dd>${inPlans.map(p=>esc(p.name)).join(', ')}</dd>`:''}</dl>
+    ${chart}
+    <div class="card stack" style="padding:12px"><b style="font-weight:600">Ghi nhanh (tập ngoài kế hoạch)</b>
+      <div class="mini"><div><label class="lbl" for="qk-kg">Kg</label><input id="qk-kg" class="input" inputmode="decimal" value="${ts?ts[0]||'':''}" placeholder="0"></div><div><label class="lbl" for="qk-r">${u==='giây'?'Giây':'Số lần'}</label><input id="qk-r" class="input" inputmode="numeric" value="${ts?ts[1]:''}" placeholder="${DEF_REPS[e.k].split('-')[0]}"></div></div>
+      <div class="mini"><div><label class="lbl" for="qk-s">Số hiệp</label><input id="qk-s" class="input" inputmode="numeric" value="3"></div><div style="display:flex;align-items:flex-end"><button class="btn ok block" data-act="qk-save">Đánh dấu đã tập</button></div></div>
+    </div>
+    ${logs.length?`<div><label class="lbl">Lịch sử</label><div class="hist-list">${logs.map(l=>`<div class="hi"><span>${fmtDate(l.d)}</span><span class="num" style="font-size:15px">${l.s.map(s=>fmtSet(s,id)).join(' · ')}</span></div>`).join('')}</div></div>`:''}
+    ${S.plans.length?`<div><label class="lbl" for="add-to-plan">Thêm vào kế hoạch</label><div class="row" style="flex-wrap:nowrap"><select id="add-to-plan" class="input">${S.plans.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select><button class="btn" data-act="add-to-plan">Thêm</button></div><p class="small muted" style="margin:4px 0 0">Bài được ghép vào superset cuối nếu khối đó còn 1 bài, nếu không sẽ tạo superset mới.</p></div>`:''}
+  </div>`;
+  openSheet({title:e.vn, body, foot:null, onClick:(ev,sh)=>{
+    const b=ev.target.closest('[data-act]'); if(!b) return;
+    if(b.dataset.act==='qk-save'){
+      const kg=numOr(sh.el.querySelector('#qk-kg').value), r=Math.round(numOr(sh.el.querySelector('#qk-r').value)), n=Math.max(1,Math.min(10,Math.round(numOr(sh.el.querySelector('#qk-s').value,1))));
+      if(!r){ toast('Nhập số lần (hoặc số giây)'); return; }
+      const today=isoDate();
+      (S.logs[id]=S.logs[id]||[]).unshift({d:today, s:Array.from({length:n},()=>[kg,r])});
+      S.logs[id]=S.logs[id].slice(0,25);
+      S.sessions.unshift({id:uid(), d:today, planId:null, name:'Ghi nhanh', min:0, ex:[{id, top:[kg,r], n}]});
+      save(); closeSheet(); render(); toast('Đã đánh dấu: '+e.vn+' '+fmtSet([kg,r],id));
+    }
+    if(b.dataset.act==='add-to-plan'){
+      const p = planById(sh.el.querySelector('#add-to-plan').value); if(!p) return;
+      const lb = p.blocks[p.blocks.length-1];
+      if(lb && lb.ex.length===1) lb.ex.push({id, reps:DEF_REPS[e.k]}); else p.blocks.push({sets:3, rest:75, ex:[{id, reps:DEF_REPS[e.k]}]});
+      save(); closeSheet(); render(); toast('Đã thêm vào “'+p.name+'”');
+    }
+  }});
+}
+
+/* trình sửa kế hoạch */
+function openEditor(plan){
+  const isNew = !plan;
+  const P = plan ? clone(plan) : {id:'p-'+uid(), name:'', blocks:[]};
+  const days = DOW_ORDER.filter(d=>S.schedule[d]===P.id);
+  const bodyHtml = () => `<div class="stack">
+    <div><label class="lbl" for="ed-name">Tên kế hoạch</label><input id="ed-name" class="input" value="${esc(P.name)}" placeholder="Ví dụ: Ngực + Lưng B"></div>
+    <div><label class="lbl">Tập vào ngày</label><div class="chips" style="flex-wrap:wrap">${DOW_ORDER.map(d=>`<button class="chip" data-act="ed-day" data-d="${d}" aria-pressed="${days.includes(d)}">${DOW[d]}</button>`).join('')}</div></div>
+    ${P.blocks.map((b,bi)=>`<div class="eblock">
+      <div class="eblock-h"><b>Superset ${LETTERS[bi]}</b>
+        <button class="icon-btn" aria-label="Lên" data-act="ed-up" data-b="${bi}" ${bi?'':'disabled'}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 15l6-6 6 6"/></svg></button>
+        <button class="icon-btn" aria-label="Xuống" data-act="ed-down" data-b="${bi}" ${bi<P.blocks.length-1?'':'disabled'}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button class="icon-btn" aria-label="Xóa khối" data-act="ed-rm-b" data-b="${bi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg></button></div>
+      <div class="mini"><div><label class="lbl" for="ed-sets-${bi}">Số hiệp</label><div class="stepper"><button class="icon-btn" data-act="ed-sets" data-b="${bi}" data-v="-1" aria-label="Bớt hiệp">−</button><input id="ed-sets-${bi}" class="input num" value="${b.sets}" readonly><button class="icon-btn" data-act="ed-sets" data-b="${bi}" data-v="1" aria-label="Thêm hiệp">+</button></div></div>
+        <div><label class="lbl" for="ed-rest-${bi}">Nghỉ sau vòng</label><select id="ed-rest-${bi}" class="input" data-f="rest" data-b="${bi}">${[30,45,60,75,90,120,150,180].map(s=>`<option value="${s}" ${b.rest===s?'selected':''}>${s} giây</option>`).join('')}</select></div></div>
+      ${b.ex.map((x,xi)=>`<div class="erow"><span class="nm"><span class="dot" style="--c:${GROUPS[EX[x.id].g].c}"></span>${LETTERS[bi]}${xi+1}. ${esc(EX[x.id].vn)}</span><input id="ed-r-${bi}-${xi}" class="input" value="${esc(x.reps)}" data-f="reps" data-b="${bi}" data-x="${xi}" aria-label="Số lần mục tiêu"><button class="icon-btn" aria-label="Bỏ bài" data-act="ed-rm-x" data-b="${bi}" data-x="${xi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`).join('')}
+      ${b.ex.length<4?`<button class="btn sm" data-act="ed-add-x" data-b="${bi}">+ Thêm bài vào superset ${LETTERS[bi]}</button>`:''}
+    </div>`).join('')}
+    <button class="btn block" data-act="ed-add-b">+ Thêm superset mới (chọn 2 bài)</button>
+    <p class="small muted" style="margin:0">Mẹo: ghép 2 bài đối kháng (đẩy + kéo, tay trước + tay sau, đùi trước + đùi sau) để nghỉ ít mà cơ vẫn kịp hồi.</p>
+  </div>`;
+  const sh = openSheet({title: isNew?'Kế hoạch mới':'Sửa kế hoạch', body:bodyHtml(), foot:`<button class="btn" data-close>Hủy</button><button class="btn pri" data-act="ed-save">Lưu kế hoạch</button>`,
+    onInput:(ev)=>{
+      const t=ev.target;
+      if(t.id==='ed-name') P.name=t.value;
+      if(t.dataset.f==='reps') P.blocks[+t.dataset.b].ex[+t.dataset.x].reps=t.value;
+      if(t.dataset.f==='rest') P.blocks[+t.dataset.b].rest=+t.value;
+    },
+    onClick:(ev,sh)=>{
+      const b=ev.target.closest('[data-act]'); if(!b) return;
+      const a=b.dataset.act, bi=+b.dataset.b;
+      const re = () => { const y=sh.el.querySelector('.sheet-b').scrollTop; sh.set(bodyHtml()); sh.el.querySelector('.sheet-b').scrollTop=y; };
+      if(a==='ed-day'){ const d=+b.dataset.d; const i=days.indexOf(d); if(i>=0) days.splice(i,1); else days.push(d); b.setAttribute('aria-pressed', String(days.includes(d))); }
+      else if(a==='ed-up'){ [P.blocks[bi-1],P.blocks[bi]]=[P.blocks[bi],P.blocks[bi-1]]; re(); }
+      else if(a==='ed-down'){ [P.blocks[bi+1],P.blocks[bi]]=[P.blocks[bi],P.blocks[bi+1]]; re(); }
+      else if(a==='ed-rm-b'){ P.blocks.splice(bi,1); re(); }
+      else if(a==='ed-rm-x'){ P.blocks[bi].ex.splice(+b.dataset.x,1); if(!P.blocks[bi].ex.length) P.blocks.splice(bi,1); re(); }
+      else if(a==='ed-sets'){ P.blocks[bi].sets=Math.max(1,Math.min(8,P.blocks[bi].sets+(+b.dataset.v))); re(); }
+      else if(a==='ed-add-x'){ openPicker({title:'Thêm vào superset '+LETTERS[bi], max:4-P.blocks[bi].ex.length, onDone:ids=>{ ids.forEach(id=>P.blocks[bi].ex.push({id, reps:DEF_REPS[EX[id].k]})); re(); }}); }
+      else if(a==='ed-add-b'){ openPicker({title:'Chọn bài cho superset', max:12, onDone:ids=>{ for(let i=0;i<ids.length;i+=2){ P.blocks.push({sets:3, rest:75, ex:ids.slice(i,i+2).map(id=>({id, reps:DEF_REPS[EX[id].k]}))}); } re(); }}); }
+      else if(a==='ed-save'){
+        P.name = P.name.trim() || 'Kế hoạch '+(S.plans.length+1);
+        if(!P.blocks.length){ toast('Thêm ít nhất 1 superset'); return; }
+        const i=S.plans.findIndex(p=>p.id===P.id); if(i>=0) S.plans[i]=P; else S.plans.push(P);
+        DOW_ORDER.forEach(d=>{ if(days.includes(d)) S.schedule[d]=P.id; else if(S.schedule[d]===P.id) delete S.schedule[d]; });
+        save(); closeSheet(); render(); toast('Đã lưu “'+P.name+'”');
+      }
+    }});
+}
+
+/* tạo nhanh: ưu tiên bài lâu chưa tập */
+function generate(gs, k, sets){
+  const pools = gs.map(g => EXL.filter(e=>e.g===g).sort((a,b)=>{
+    const da=daysAgo(lastDone(a.id))??9999, dbb=daysAgo(lastDone(b.id))??9999;
+    if(da!==dbb) return dbb-da;
+    const ra = a.k==='c'?0:1, rb = b.k==='c'?0:1; if(ra!==rb) return ra-rb;
+    return Math.random()-.5;
+  }));
+  const picks=[]; let gi=0; const idx=gs.map(()=>0);
+  while(picks.length<k*2){
+    const g = gi % gs.length; gi++;
+    if(idx[g] < pools[g].length) picks.push(pools[g][idx[g]++]);
+    if(idx.every((v,i)=>v>=pools[i].length)) break;
+  }
+  const blocks=[];
+  for(let i=0;i<picks.length;i+=2){
+    const ex = picks.slice(i,i+2).map(e=>({id:e.id, reps:DEF_REPS[e.k]}));
+    const heavy = picks.slice(i,i+2).some(e=>e.k==='c');
+    blocks.push({sets, rest: heavy?90:60, ex});
+  }
+  return {id:'p-'+uid(), name: gs.map(g=>GROUPS[g].n).join(' + ')+' (tự tạo)', blocks};
+}
+function openQuick(){
+  const fresh = GKEYS.map(g=>({g, d:daysAgo(groupLast(g))})).sort((a,b)=>(b.d??9999)-(a.d??9999));
+  const st = {gs: fresh.slice(0,2).map(f=>f.g), k:4, sets:3, plan:null};
+  const build = () => { st.plan = st.gs.length ? generate(GKEYS.filter(g=>st.gs.includes(g)), st.k, st.sets) : null; };
+  build();
+  const body = () => `<div class="stack">
+    <div><label class="lbl">Nhóm cơ (đã chọn sẵn 2 nhóm lâu chưa tập nhất)</label><div class="chips" style="flex-wrap:wrap">${GKEYS.map(g=>{const f=fresh.find(x=>x.g===g);return `<button class="chip" data-act="q-g" data-g="${g}" aria-pressed="${st.gs.includes(g)}"><span class="dot" style="--c:${GROUPS[g].c};width:10px;height:10px"></span>${GROUPS[g].n} <span class="muted small">${f.d==null?'chưa tập':f.d+'n'}</span></button>`;}).join('')}</div></div>
+    <div class="mini"><div><label class="lbl" for="q-k">Số superset</label><div class="stepper"><button class="icon-btn" data-act="q-k" data-v="-1" aria-label="Bớt">−</button><input id="q-k" class="input num" value="${st.k}" readonly><button class="icon-btn" data-act="q-k" data-v="1" aria-label="Thêm">+</button></div></div>
+    <div><label class="lbl" for="q-s">Hiệp mỗi khối</label><div class="stepper"><button class="icon-btn" data-act="q-s" data-v="-1" aria-label="Bớt">−</button><input id="q-s" class="input num" value="${st.sets}" readonly><button class="icon-btn" data-act="q-s" data-v="1" aria-label="Thêm">+</button></div></div></div>
+    ${st.plan?`<div class="card"><div class="row" style="margin-bottom:4px"><b style="flex:1;font-weight:600">${esc(st.plan.name)}</b><button class="btn sm" data-act="q-re">Đổi bài khác</button></div>${blockPreview(st.plan)}</div>`:'<div class="card empty">Chọn ít nhất một nhóm cơ.</div>'}
+    <p class="small muted" style="margin:0">Máy chọn bài lâu chưa tập (hoặc chưa tập lần nào) trong mỗi nhóm, ưu tiên bài đa khớp, rồi ghép chéo giữa các nhóm thành superset.</p></div>`;
+  openSheet({title:'Tạo buổi nhanh', body:body(), foot:`<button class="btn" data-act="q-save">Lưu thành kế hoạch</button><button class="btn pri" data-act="q-start">Tập ngay</button>`,
+    onClick:(ev,sh)=>{
+      const b=ev.target.closest('[data-act]'); if(!b) return; const a=b.dataset.act;
+      if(a==='q-g'){ const g=b.dataset.g; const i=st.gs.indexOf(g); if(i>=0) st.gs.splice(i,1); else st.gs.push(g); build(); sh.set(body()); }
+      else if(a==='q-k'){ st.k=Math.max(1,Math.min(8,st.k+(+b.dataset.v))); build(); sh.set(body()); }
+      else if(a==='q-s'){ st.sets=Math.max(1,Math.min(6,st.sets+(+b.dataset.v))); build(); sh.set(body()); }
+      else if(a==='q-re'){ // xáo lại: đẩy những bài vừa gợi ý xuống cuối danh sách
+        const used = new Set(st.plan.blocks.flatMap(x=>x.ex.map(y=>y.id)));
+        const gs = GKEYS.filter(g=>st.gs.includes(g));
+        const pools = gs.map(g=>EXL.filter(e=>e.g===g && !used.has(e.id)).sort(()=>Math.random()-.5));
+        const picks=[]; let gi=0; while(picks.length<st.k*2 && pools.some(p=>p.length)){ const p=pools[gi++%pools.length]; if(p.length) picks.push(p.shift()); }
+        const blocks=[]; for(let i=0;i<picks.length;i+=2) blocks.push({sets:st.sets, rest:75, ex:picks.slice(i,i+2).map(e=>({id:e.id, reps:DEF_REPS[e.k]}))});
+        if(blocks.length) st.plan.blocks=blocks; sh.set(body());
+      }
+      else if(a==='q-start'){ if(st.plan) startWorkout(st.plan); }
+      else if(a==='q-save'){ if(!st.plan) return; closeSheet(); openEditor(clone(st.plan)); }
+    }});
+}
+
+/* ============ EVENTS ============ */
+document.querySelector('.tabbar').addEventListener('click', ev=>{
+  const b=ev.target.closest('.tab'); if(!b) return;
+  tab=b.dataset.tab; $('#view').innerHTML=''; render(); window.scrollTo(0,0);
+});
+document.addEventListener('click', ev=>{
+  if(ev.target.closest('#sheets')) return;
+  const b = ev.target.closest('[data-act]'); if(!b) return;
+  const a = b.dataset.act, bi=+b.dataset.b, xi=+b.dataset.x, si=+b.dataset.s;
+  switch(a){
+    case 'pick-day': UI.day=+b.dataset.d; render(); break;
+    case 'goto': tab=b.dataset.tab; render(); window.scrollTo(0,0); break;
+    case 'start': {
+      const p=planById(b.dataset.id); if(!p) return;
+      if(A){ toast('Đang có buổi tập dở, hãy kết thúc trước'); tab='today'; render(); return; }
+      startWorkout(p); break; }
+    case 'quick': openQuick(); break;
+    case 'new-plan': openEditor(null); break;
+    case 'edit-plan': openEditor(planById(b.dataset.id)); break;
+    case 'dup-plan': { const p=clone(planById(b.dataset.id)); p.id='p-'+uid(); p.name+=' (bản sao)'; S.plans.push(p); save(); render(); toast('Đã nhân bản'); break; }
+    case 'del-ask': UI.delPlan=b.dataset.id; render(); break;
+    case 'del-cancel': UI.delPlan=null; render(); break;
+    case 'del-plan': { const id=b.dataset.id; S.plans=S.plans.filter(p=>p.id!==id); for(const d in S.schedule) if(S.schedule[d]===id) delete S.schedule[d]; UI.delPlan=null; save(); render(); toast('Đã xóa kế hoạch'); break; }
+    case 'ex-detail': openDetail(b.dataset.id); break;
+    case 'lib-g': UI.gf=b.dataset.g; renderLibList(); break;
+    case 'lib-sort': UI.sort = UI.sort==='stale'?'group':'stale'; renderLibList(); break;
+    case 'w-tick': {
+      const blk=A.blocks[bi]; const s=blk.ex[xi].sets[si];
+      const kgEl=$(`#kg-${bi}-${xi}-${si}`), rEl=$(`#r-${bi}-${xi}-${si}`);
+      if(!s.done && !String(s.r).trim()){ s.r = rEl.placeholder; }
+      s.done=!s.done; saveActive();
+      const y=window.scrollY; render(); window.scrollTo(0,y);
+      if(s.done){
+        const roundDone = blk.ex.every(x=>!x.sets[si] || x.sets[si].done);
+        if(roundDone){
+          const nextB = blockDone(blk) ? A.blocks.findIndex(bb=>!blockDone(bb)) : bi;
+          startRest(blk.rest, blockDone(blk) ? (nextB>=0 ? 'Tiếp theo: Superset '+LETTERS[nextB] : 'Đã xong tất cả, bấm Kết thúc') : 'Tiếp theo: '+LETTERS[bi]+'1, hiệp '+(si+2));
+        }
+      }
+      break; }
+    case 'w-block-all': { const blk=A.blocks[bi]; const all=!blockDone(blk); blk.ex.forEach(x=>{ x.sets.forEach(s=>{ if(all && !String(s.r).trim()) s.r=String(x.reps).split('-')[0]; s.done=all; }); }); saveActive(); const y=window.scrollY; render(); window.scrollTo(0,y); break; }
+    case 'w-add-set': { A.blocks[bi].ex.forEach(x=>{ const l=x.sets[x.sets.length-1]; x.sets.push({kg:l?l.kg:'', r:l?l.r:'', done:false}); }); saveActive(); const y=window.scrollY; render(); window.scrollTo(0,y); break; }
+    case 'w-add-ex': openPicker({title:'Thêm vào superset '+LETTERS[bi], onDone:ids=>{ const n=A.blocks[bi].ex[0]?A.blocks[bi].ex[0].sets.length:3; ids.forEach(id=>A.blocks[bi].ex.push({id, reps:DEF_REPS[EX[id].k], sets:mkSets(id,n)})); saveActive(); render(); }}); break;
+    case 'w-add-block': openPicker({title:'Superset mới', onDone:ids=>{ for(let i=0;i<ids.length;i+=2) A.blocks.push({rest:75, ex:ids.slice(i,i+2).map(id=>({id, reps:DEF_REPS[EX[id].k], sets:mkSets(id,3)}))}); saveActive(); render(); }}); break;
+    case 'w-swap': { const x=A.blocks[bi].ex[xi]; openPicker({title:'Đổi '+EX[x.id].vn, multi:false, group:EX[x.id].g, sort:'stale', onDone:ids=>{ const id=ids[0]; A.blocks[bi].ex[xi]={id, reps:DEF_REPS[EX[id].k], sets:mkSets(id, x.sets.length)}; saveActive(); render(); toast('Đã đổi sang '+EX[id].vn); }}); break; }
+    case 'w-rm-ex': { A.blocks[bi].ex.splice(xi,1); if(!A.blocks[bi].ex.length) A.blocks.splice(bi,1); saveActive(); render(); break; }
+    case 'finish': openFinish(); break;
+    case 'rest-add': restEnd = Math.max(Date.now(), restEnd) + (+b.dataset.v)*1000; if(!restIv){ restIv=setInterval(tickRest,250); } tickRest(); break;
+    case 'rest-stop': stopRest(); break;
+    case 'export': {
+      const txt = JSON.stringify({v:1, plans:S.plans, schedule:S.schedule, logs:S.logs, sessions:S.sessions});
+      const ok = () => toast('Đã sao chép. Dán vào ghi chú để giữ lại.');
+      const fallback = () => openSheet({title:'Dữ liệu sao lưu', body:`<p class="small muted">Chọn hết và sao chép đoạn dưới đây.</p><textarea id="exp-txt" class="input" readonly>${esc(txt)}</textarea>`, foot:null});
+      try{ navigator.clipboard.writeText(txt).then(ok, fallback); }catch(e){ fallback(); }
+      break; }
+    case 'import-open': openSheet({title:'Khôi phục dữ liệu', body:`<div class="stack"><p class="small muted" style="margin:0">Dán đoạn đã sao lưu. Dữ liệu hiện tại sẽ bị thay thế.</p><textarea id="imp-txt" class="input" placeholder='{"v":1,...}'></textarea></div>`, foot:`<button class="btn" data-close>Hủy</button><button class="btn pri" data-act="imp-do">Khôi phục</button>`,
+      onClick:(ev,sh)=>{ const bb=ev.target.closest('[data-act="imp-do"]'); if(!bb) return;
+        try{ const d=JSON.parse(sh.el.querySelector('#imp-txt').value); if(!Array.isArray(d.plans)) throw 0; S={plans:d.plans, schedule:d.schedule||{}, logs:d.logs||{}, sessions:d.sessions||[]}; save(); closeSheet(); render(); toast('Đã khôi phục dữ liệu'); }
+        catch(e){ toast('Đoạn dán không đúng định dạng sao lưu'); } }}); break;
+  }
+});
+function openFinish(){
+  const st = woStats();
+  const undone = A.blocks.flatMap(b=>b.ex).filter(x=>!x.sets.some(s=>s.done)).map(x=>EX[x.id].vn);
+  openSheet({title:'Kết thúc buổi tập', body:`<div class="stack"><p style="margin:0">Đã xong <b>${st.d}/${st.t}</b> hiệp trong ${elapsed()}. Số kg của các hiệp đã đánh dấu sẽ được nhớ cho lần sau.</p>
+    ${undone.length?`<p class="small muted" style="margin:0">Chưa tập: ${undone.map(esc).join(', ')}. Các bài này không được ghi.</p>`:''}
+    <div id="fin-confirm"></div></div>`,
+    foot:`<button class="btn ghost" data-act="fin-discard">Hủy buổi</button><button class="btn" data-close>Tập tiếp</button><button class="btn ok" data-act="fin-save">Lưu</button>`,
+    onClick:(ev,sh)=>{ const b=ev.target.closest('[data-act]'); if(!b) return;
+      if(b.dataset.act==='fin-save') finishWorkout();
+      if(b.dataset.act==='fin-discard') sh.el.querySelector('#fin-confirm').innerHTML=`<div class="confirm">Bỏ buổi này, không lưu gì?<span style="flex:1"></span><button class="btn sm danger" data-act="fin-discard-yes">Bỏ buổi</button></div>`;
+      if(b.dataset.act==='fin-discard-yes'){ A=null; saveActive(); stopRest(); closeAllSheets(); render(); toast('Đã hủy buổi tập'); }
+    }});
+}
+document.addEventListener('input', ev=>{
+  const t = ev.target;
+  if(t.closest('#sheets')) return;
+  if(t.id==='lib-search'){ UI.q=t.value; renderLibList(); return; }
+  if(t.dataset.f && A && t.closest('.sets')){
+    const s = A.blocks[+t.dataset.b].ex[+t.dataset.x].sets[+t.dataset.s];
+    s[t.dataset.f] = t.value.replace(',','.'); saveActive();
+    // điền trước kg cho các hiệp sau chưa làm
+    if(t.dataset.f==='kg'){ const ex=A.blocks[+t.dataset.b].ex[+t.dataset.x]; for(let i=+t.dataset.s+1;i<ex.sets.length;i++){ if(!ex.sets[i].done){ ex.sets[i].kg=s.kg; const el=$(`#kg-${t.dataset.b}-${t.dataset.x}-${i}`); if(el) el.value=s.kg; } } }
+  }
+});
+document.addEventListener('change', ev=>{
+  const t=ev.target;
+  if(t.dataset.act==='sched'){ const d=t.dataset.d; if(t.value) S.schedule[d]=t.value; else delete S.schedule[d]; save(); toast(DOW_FULL[d]+': '+(t.value?planById(t.value).name:'Nghỉ')); }
+});
+setInterval(()=>{ const el=$('#wo-time'); if(el && A) el.textContent=elapsed(); }, 15000);
+document.addEventListener('keydown', ev=>{ if(ev.key==='Escape' && sheetStack.length) closeSheet(); });
+
+render();
+initDb();
+</script>
