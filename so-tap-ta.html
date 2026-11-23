@@ -254,6 +254,12 @@ details.guide[open] summary{margin-bottom:8px}
 .rt:first-child{border-top:0}
 .rt-b{flex:1;min-width:0;font-size:14px;line-height:1.35}
 .rt-b b{font-weight:600}
+.rt-name{background:none;border:0;padding:0;font-weight:600;text-align:left;color:var(--ink)}
+.rt-more{background:none;border:0;padding:0;font-size:13px;font-weight:600;color:var(--accent);min-height:36px;text-align:left}
+.rt-acts{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:4px}
+.rt-thumb{flex:none;width:58px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden}
+.fig.mini{max-height:none;cursor:pointer}
+.fig.mini .limb,.fig.mini .limb2{stroke-width:7}
 .rt-b small{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px}
 .rt.on .rt-b{opacity:.6}
 .tick.sm-tick{width:40px;height:40px;flex:none}
@@ -1148,7 +1154,11 @@ function mountFig(box, id){
   const cable = EX[id].eq==='Cáp';
   const anchor = spec.anchor || [124,136], anchor2 = spec.anchor2;
   const item2 = spec.sym && item==='db' ? 'db' : '';
-  box.innerHTML = `<svg class="fig" viewBox="0 -14 200 164" role="img" aria-label="Hình động minh họa ${esc(EX[id].vn)} kèm nhịp thở">
+  mountSpec(box, spec, {type:breathType(id), item, item2, cable, anchor, anchor2, label:EX[id].vn});
+}
+function mountSpec(box, spec, o){
+  const {type, label} = o, item = o.item||'', item2 = o.item2||'', cable = !!o.cable, anchor = o.anchor||[124,136], anchor2 = o.anchor2;
+  box.innerHTML = `<svg class="fig" viewBox="0 -14 200 164" role="img" aria-label="Hình động minh họa ${esc(label)} kèm nhịp thở">
     <g>${spec.props||''}</g>
     <line class="cable" data-c="1" ${cable?'':'visibility="hidden"'} x1="${anchor[0]}" y1="${anchor[1]}"/>
     <line class="cable" data-c="2" ${cable&&anchor2?'':'visibility="hidden"'} x1="${anchor2?anchor2[0]:0}" y1="${anchor2?anchor2[1]:0}"/>
@@ -1160,13 +1170,13 @@ function mountFig(box, id){
     <p class="small muted" style="margin:0">${esc(spec.view || 'Nhìn ngang')} · hình giản lược</p>`;
   const svg = box.querySelector('svg');
   const q = s => svg.querySelector(s);
-  FIG = {svg, spec, type:breathType(id), t0:performance.now(), paused:false, lastSeg:null,
+  FIG = {svg, spec, type, t0:performance.now(), paused:false, lastSeg:null,
     leg:q('[data-p="leg"]'), leg2:q('[data-p="leg2"]'), arm:q('[data-p="arm"]'), arm2:q('[data-p="arm2"]'), torso:q('[data-p="torso"]'),
     head:q('.head'), item:q('.item'), item2:item2?q('[data-i="2"]'):null, itemT:item, cable:cable?q('[data-c="1"]'):null, cable2:cable&&anchor2?q('[data-c="2"]'):null, lung:q('.lung'),
     bn:box.querySelector('.breath-now'), ph:box.querySelector('.ph'), hint:box.querySelector('.breath-now .muted')};
   const F = FIG;
   svg.addEventListener('click', ()=>{ F.paused=!F.paused; if(!F.paused) F.t0=performance.now(); F.hint.textContent = F.paused ? 'Đã dừng · chạm để chạy' : 'Chạm hình để dừng'; });
-  drawPose(F, spec.B, 0); F.ph.textContent = TL[F.type][0].t; F.bn.className='breath-now '+TL[F.type][0].c;
+  drawPose(F, TL[F.type][0].a ? spec.A : spec.B, 0); F.ph.textContent = TL[F.type][0].t; F.bn.className='breath-now '+TL[F.type][0].c;
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){ F.paused=true; F.hint.textContent='Chạm hình để xem chuyển động'; }
   requestAnimationFrame(figFrame);
 }
@@ -1177,7 +1187,7 @@ function drawPose(F, P, l){
   F.leg.setAttribute('d', legPath(pt(P.hp),pt(P.k),pt(P.f),toe(P.f,P.t)));
   F.leg2.setAttribute('d', P.k2 ? legPath(pt(P.hp),pt(P.k2),pt(P.f2),toe(P.f2)) : '');
   F.torso.setAttribute('d', `M${pt(P.hp)} L${pt(P.n)}`+(P.s?` M${pt(P.s)} L${pt(P.s2)}`:''));
-  F.arm.setAttribute('d', `M${pt(P.s||P.n)} L${pt(P.e)} L${pt(P.w)}`);
+  F.arm.setAttribute('d', `M${pt(P.s||P.n)} L${pt(P.e)} L${pt(P.w)}`+(P.hd?` L${pt(P.hd)}`:''));
   F.arm2.setAttribute('d', P.e2 ? `M${pt(P.s2||P.n)} L${pt(P.e2)} L${pt(P.w2)}` : '');
   F.head.setAttribute('cx', P.h[0]); F.head.setAttribute('cy', P.h[1]);
   const ip = F.spec.item==='hip' ? [P.hp[0], P.hp[1]-9] : F.itemT==='wheel' ? [P.w[0], P.w[1]+5] : F.itemT==='sled' ? [P.f[0]+3, P.f[1]-2] : P.w;
@@ -1330,6 +1340,7 @@ function commonAct(ev){
   if(a==='media-add'){ pickMedia({ex:b.dataset.ex||null, sk:b.dataset.sk||null}); return true; }
   if(a==='media-view'){ openViewer(b.dataset.id); return true; }
   if(a==='ex-info'){ openDetail(b.dataset.id); return true; }
+  if(a==='rt-show'){ openRoutineItem(b.dataset.id); return true; }
   return false;
 }
 function guideCard(){
@@ -1426,8 +1437,8 @@ function routineList(kind, items, done){
   return `<ul class="rt-list">${items.map(it=>{
     const on = done && done[it.id];
     return `<li class="rt ${on?'on':''}">${done?`<button class="tick sm-tick" aria-pressed="${!!on}" aria-label="Đã làm ${esc(it.n)}" data-act="rt-tick" data-k="${kind}" data-id="${it.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>`:''}
-      <div class="rt-b"><b>${esc(it.n)}</b> <span class="tag">${esc(it.dose)}</span>${it.g?` <span class="dot" style="--c:${GROUPS[it.g].c};width:9px;height:9px;display:inline-block;vertical-align:middle"></span>`:''}<small>${esc(it.how)}</small></div>
-      ${it.sec?`<button class="btn sm" data-act="rt-timer" data-s="${it.sec}" data-n="${esc(it.n)}">${it.sec} giây</button>`:''}</li>`;}).join('')}</ul>`;
+      ${STRETCH_POSES[it.id]?`<button class="rt-thumb" data-act="rt-show" data-id="${it.id}" aria-label="Xem hình ${esc(it.n)}">${miniFig(STRETCH_POSES[it.id])}</button>`:''}
+      <div class="rt-b"><button class="rt-name" data-act="rt-show" data-id="${it.id}">${esc(it.n)}</button> <span class="tag">${esc(it.dose)}</span>${it.g?` <span class="dot" style="--c:${GROUPS[it.g].c};width:9px;height:9px;display:inline-block;vertical-align:middle"></span>`:''}<small>${esc(it.how)}</small><span class="rt-acts"><button class="rt-more" data-act="rt-show" data-id="${it.id}">${STRETCH_POSES[it.id]?'Xem hình động & video':'Xem video'} ›</button>${it.sec?`<button class="btn sm" data-act="rt-timer" data-s="${it.sec}" data-n="${esc(it.n)}">Bấm giờ ${it.sec} giây</button>`:''}</span></div></li>`;}).join('')}</ul>`;
 }
 const WU_NOTE = 'Khởi động động: chuyển động nhẹ, biên độ tăng dần, không giữ lâu. Thở đều theo nhịp động tác. Không giãn tĩnh lâu (giữ trên 60 giây) trước khi tập nặng.';
 const CD_NOTE = 'Giữ ở mức căng nhẹ, không đau, không nhún nảy. Thở ra chậm để thả lỏng sâu hơn. Mỗi bên 1–2 lần.';
@@ -1449,6 +1460,101 @@ function openRoutine(plan){
     <div class="card stack" style="padding:12px"><b style="font-weight:600">1. Khởi động trước khi tập · 8–10 phút</b><p class="small muted" style="margin:0">${WU_NOTE}</p>${routineList('wu', routineItems('wu', groups))}${rampHtml(rampFor(plan.blocks, false))}</div>
     <div class="card stack" style="padding:12px"><b style="font-weight:600">2. Giãn cơ sau khi tập · 5–7 phút</b><p class="small muted" style="margin:0">${CD_NOTE}</p>${routineList('cd', routineItems('cd', groups))}</div>
   </div>`, onClick:(ev)=>{ const b=ev.target.closest('[data-act="rt-timer"]'); if(b) startRest(+b.dataset.s, b.dataset.n, 'Đang giãn cơ', 'Xong, đổi bên hoặc bài tiếp'); }});
+}
+
+/* ============ HÌNH ĐỘNG BÀI GIÃN CƠ ============ */
+// A = tư thế bắt đầu, B = tư thế giãn. Hình giản lược, góc nhìn ghi ở view.
+const QUAD4 = {k:[80,132], f:[56,134], hp:[80,106], n:[122,104], h:[134,100], e:[122,118], w:[122,134]};
+const LIE_BACK = {hp:[96,128], n:[46,128], h:[33,126]};
+const WALL = x => `<line class="prop" x1="${x}" y1="-10" x2="${x}" y2="137" stroke-width="5"/>`;
+const STRETCH_POSES = {
+  'door-pec':{A:{h:[94,29], n:[94,42], hp:[93,78], k:[93,106], f:[92,134], k2:[93,106], f2:[92,134], e:[113,43], w:[113,19]},
+              B:{h:[132,34], n:[128,46], hp:[120,80], k:[132,106], f:[138,134], k2:[110,108], f2:[100,134], e:[113,43], w:[113,19]},
+              props:WALL(113)+FLOOR, view:'Nhìn ngang · cẳng tay áp khung cửa, ngực bước qua khung'},
+  'hands-behind':{A:SP({e:[97,64], w:[92,86]}), B:SP({h:[103,28], n:[102,42], e:[88,60], w:[74,74]}), props:FLOOR, view:'Nhìn ngang · tay đan sau lưng, nâng tay ra sau, mở ngực'},
+  'child':{A:QUAD4, B:{k:[80,132], f:[56,134], hp:[60,124], n:[100,122], h:[112,126], e:[126,128], w:[150,132]}, props:FLOOR, noToe:1, view:'Nhìn ngang · từ quỳ bốn điểm, ngồi lùi về gót, vươn tay xa'},
+  'lat-post':{A:SP({e:[124,62], w:[148,70]}), B:{h:[128,64], n:[116,70], hp:[80,90], k:[94,112], f:[100,134], e:[132,70], w:[148,70]}, props:'<line class="prop" x1="150" y1="-10" x2="150" y2="137" stroke-width="5"/>'+FLOOR, view:'Nhìn ngang · tay nắm cột, đẩy hông ra sau (và hơi sang bên)'},
+  'twist':{A:FB({s:[80,42], s2:[120,42], e:[60,44], w:[40,44], e2:[140,44], w2:[160,44], k:[94,110], f:[92,134], k2:[106,110], f2:[108,134]}),
+           B:FB({s:[80,42], s2:[120,42], e:[60,44], w:[40,44], e2:[140,44], w2:[160,44], k:[94,110], f:[92,134], k2:[76,94], f2:[94,108]}), props:'', sym:1, noToe:1, view:'Nhìn từ trên xuống · nằm ngửa, kéo một gối qua người, hai vai áp sàn'},
+  'cross-body':{A:FB({e:[85,62], w:[84,84], e2:[115,62], w2:[116,84]}), B:FB({e:[108,48], w:[132,50], e2:[124,66], w2:[112,50]}), props:FLOOR, sym:1, noToe:1, view:'Nhìn từ phía trước · tay kia ép cánh tay (không ép khớp khuỷu)'},
+  'thread-needle':{A:Object.assign({}, QUAD4, {e2:[122,118], w2:[122,134]}),
+                   B:{k:[80,132], f:[56,134], hp:[82,104], n:[114,124], h:[127,129], e:[126,114], w:[132,134], e2:[106,132], w2:[84,134]}, props:FLOOR, noToe:1, view:'Nhìn ngang · hông giữ cao, luồn tay dưới người, vai và má hạ xuống sàn'},
+  'tri-oh':{A:SP({e:[103,18], w:[104,-6], e2:[112,62], w2:[114,84]}), B:SP({e:[104,16], w:[92,36], e2:[116,30], w2:[106,16]}), props:FLOOR, view:'Nhìn ngang · khuỷu sau đầu, tay kia ấn nhẹ khuỷu'},
+  'bi-wall':{A:FB({e:[85,62], w:[84,84], e2:[138,44], w2:[164,44]}), B:FB({h:[96,25], n:[97,38], s:[91,42], s2:[106,42], e:[88,62], w:[87,84], e2:[134,44], w2:[164,44]}),
+             props:WALL(168)+FLOOR, sym:1, noToe:1, view:'Nhìn từ phía trước · lòng bàn tay áp tường ngang vai, xoay người ra xa tường'},
+  'forearm':{A:SP({e:[124,44], w:[148,44], hd:[158,44], e2:[110,64], w2:[122,56]}), B:SP({e:[124,44], w:[148,44], hd:[152,33], e2:[124,56], w2:[151,36]}), props:FLOOR, view:'Nhìn ngang · tay duỗi thẳng, tay kia kéo nhẹ các ngón'},
+  'quad':{A:SP({k2:[101,106], f2:[100,134], e2:[118,52], w2:[140,50]}), B:SP({k:[101,106], f:[84,88], k2:[101,106], f2:[100,134], e:[94,68], w:[84,86], e2:[118,52], w2:[140,50]}), props:WALL(142)+FLOOR, noToe:1, view:'Nhìn ngang · tay vịn tường, kéo gót về phía mông, hai gối sát nhau'},
+  'ham':{A:{h:[98,31], n:[98,44], hp:[100,80], k:[120,92], f:[142,102], k2:[98,106], f2:[96,134], e:[102,66], w:[108,86]},
+         B:{h:[138,52], n:[126,56], hp:[96,82], k:[120,92], f:[142,102], k2:[98,106], f2:[96,134], e:[128,76], w:[134,94]},
+         props:'<rect class="propf" x="128" y="104" width="40" height="33" rx="3"/>'+FLOOR, noToe:1, view:'Nhìn ngang · gót trên ghế thấp, gập người từ hông, lưng thẳng'},
+  'hip-flex':{A:{h:[98,51], n:[98,64], hp:[98,100], k:[124,108], f:[124,134], k2:[86,132], f2:[62,134], e:[104,84], w:[112,100]},
+              B:{h:[110,53], n:[110,66], hp:[108,104], k:[132,108], f:[124,134], k2:[86,132], f2:[62,134], e:[116,86], w:[126,100]}, props:FLOOR, noToe:1, view:'Nhìn ngang · quỳ một gối, siết mông, đẩy hông về trước'},
+  'fig4':{A:Object.assign({}, LIE_BACK, {k:[116,106], f:[138,133], k2:[132,112], f2:[116,104], e:[60,118], w:[80,126]}),
+          B:Object.assign({}, LIE_BACK, {k:[108,98], f:[132,92], k2:[126,104], f2:[108,98], e:[74,108], w:[104,104]}), props:FLOOR, noToe:1, view:'Nhìn ngang · nằm ngửa, cổ chân gác lên gối kia, kéo đùi về phía ngực'},
+  'calf-wall':{A:{h:[110,29], n:[108,42], hp:[104,78], k:[105,106], f:[104,134], k2:[105,106], f2:[104,134], e:[126,46], w:[148,46]},
+               B:{h:[130,34], n:[124,46], hp:[110,80], k:[130,106], f:[128,134], k2:[94,108], f2:[78,134], e:[138,52], w:[150,46]}, props:WALL(152)+FLOOR, view:'Nhìn ngang · chân sau thẳng, gót chạm sàn, dồn người về tường'},
+  'cobra':{A:{h:[143,127], n:[130,130], hp:[80,132], k:[56,133], f:[32,133], e:[122,118], w:[132,134]}, B:{h:[134,90], n:[122,100], hp:[84,130], k:[56,133], f:[32,133], e:[126,118], w:[128,134]}, props:FLOOR, noToe:1, view:'Nhìn ngang · nằm sấp, chống tay nâng ngực, hông chạm sàn'},
+  'side-bend':{A:FB({e:[85,62], w:[84,84], e2:[115,62], w2:[116,84]}), B:FB({n:[92,40], h:[86,26], s:[80,46], s2:[104,38], e:[72,62], w:[88,74], e2:[108,16], w2:[92,0]}), props:FLOOR, sym:1, noToe:1, view:'Nhìn từ phía trước · một tay vươn qua đầu, nghiêng thẳng sang bên'},
+  'breathe':{A:Object.assign({}, LIE_BACK, {k:[116,108], f:[138,133], e:[66,112], w:[84,114]}), props:FLOOR, noToe:1, view:'Nhìn ngang · nằm ngửa, tay đặt trên bụng'}
+};
+for(const k in STRETCH_POSES){ const s=STRETCH_POSES[k]; s.B = s.B || s.A; }
+const STRETCH_INFO = {
+  'door-pec':{en:'doorway pec stretch', err:'Nhô vai lên sát tai hoặc ưỡn lưng dưới để vào sâu hơn.'},
+  'hands-behind':{en:'standing chest opener stretch hands behind back', err:'Cúi đầu, gù lưng; hãy giữ cổ thẳng, ưỡn ngực.'},
+  'child':{en:'child pose stretch', err:'Hông nhổm khỏi gót; hãy để hông ngồi lùi về sau, tay vươn xa.'},
+  'lat-post':{en:'lat stretch holding pole', err:'Gù lưng; hãy giữ lưng thẳng, đẩy hông ra sau và sang bên.'},
+  'twist':{en:'supine spinal twist stretch', err:'Vai bên kia nhấc khỏi sàn; ép gối xuống quá mạnh.'},
+  'cross-body':{en:'cross body shoulder stretch', err:'Ép vào khớp khuỷu hoặc nhún vai lên; hãy ép ở cánh tay trên, vai hạ thấp.'},
+  'thread-needle':{en:'thread the needle stretch', err:'Dồn trọng lượng lên cổ; để vai chịu lực, cổ thả lỏng.'},
+  'tri-oh':{en:'overhead triceps stretch', err:'Ưỡn lưng dưới, đẩy đầu ra trước.'},
+  'bi-wall':{en:'biceps wall stretch', err:'Xoay người quá mạnh làm đau phía trước vai.'},
+  'forearm':{en:'wrist flexor extensor stretch', err:'Kéo ngón tay quá mạnh; chỉ cần căng nhẹ ở cẳng tay.'},
+  'quad':{en:'standing quad stretch', err:'Gối co kéo ra trước, ưỡn lưng; hãy giữ hai gối sát nhau, siết mông.'},
+  'ham':{en:'hamstring stretch on bench', err:'Gù lưng để với tới mũi chân; hãy gập từ hông, lưng thẳng.'},
+  'hip-flex':{en:'kneeling hip flexor stretch', err:'Ưỡn lưng dưới; hãy siết mông và hơi cuộn xương chậu.'},
+  'fig4':{en:'supine figure 4 stretch', err:'Nhấc đầu, vai khỏi sàn; kéo đùi quá mạnh.'},
+  'calf-wall':{en:'wall calf stretch', err:'Nhấc gót chân sau, mũi chân xoay ra ngoài.'},
+  'cobra':{en:'cobra stretch', err:'Nhấc hông khỏi sàn, rụt cổ; hãy hạ vai, cổ dài.'},
+  'side-bend':{en:'standing side bend stretch', err:'Đổ người ra trước; hãy nghiêng thẳng sang bên.'},
+  'breathe':{en:'diaphragmatic breathing', err:'Thở nông bằng ngực; đặt tay lên bụng để cảm nhận bụng phồng xẹp.'}
+};
+const WU_EN = {cardio:'5 minute warm up cardio', 'arm-circle':'arm circles warm up', 'arm-hug':'arm swings chest warm up', 'band-apart':'band pull apart', 'pushup-easy':'incline push up warm up',
+  'cat-cow':'cat cow stretch', tspine:'quadruped thoracic rotation', 'scap-pull':'scapular pull up', 'ext-rot':'band external rotation shoulder', 'wall-slide':'wall slides shoulder',
+  'wrist-roll':'wrist circles warm up', 'elbow-flex':'elbow warm up', 'light-arm':'arm warm up cable', 'bw-squat':'bodyweight squat warm up', 'leg-swing':'leg swings warm up',
+  'lunge-twist':'lunge with twist', bridge:'glute bridge', 'dead-bug-w':'dead bug exercise', 'bird-dog':'bird dog exercise'};
+Object.assign(TL, {
+  // p = 1: tư thế bắt đầu (A), p = 0: tư thế giãn (B)
+  stretch:[{d:1.2,a:1,b:1,l0:0,l1:1,t:'Hít vào chuẩn bị',c:'in'},{d:2.5,a:1,b:0,l0:1,l1:0,t:'Thở ra · vào tư thế từ từ',c:'out'},
+           {d:3,a:0,b:0,l0:0,l1:1,t:'Giữ · hít vào bằng bụng',c:'in'},{d:3,a:0,b:0,l0:1,l1:0,t:'Giữ · thở ra, thả lỏng thêm',c:'out'},{d:1.5,a:0,b:1,l0:0,l1:0,t:'Về chậm',c:'hold'}],
+  slow:[{d:4,a:0,b:0,l0:0,l1:1,t:'Hít vào 4 giây',c:'in'},{d:6,a:0,b:0,l0:1,l1:0,t:'Thở ra 6 giây',c:'out'}]
+});
+function miniFig(spec){
+  const P = spec.B, pt = a => a[0]+' '+a[1];
+  const toe = f => spec.noToe ? '' : ` L${f[0]+11} ${f[1]}`;
+  const leg2 = P.k2 ? `<path class="${spec.sym?'limb':'limb2'}" d="M${pt(P.hp)} L${pt(P.k2)} L${pt(P.f2)}${toe(P.f2)}"/>` : '';
+  const arm2 = P.e2 ? `<path class="${spec.sym?'limb':'limb2'}" d="M${pt(P.s2||P.n)} L${pt(P.e2)} L${pt(P.w2)}"/>` : '';
+  return `<svg class="fig mini" viewBox="0 -14 200 164" aria-hidden="true"><g>${spec.props||''}</g>${leg2}${arm2}
+    <path class="limb" d="M${pt(P.hp)} L${pt(P.k)} L${pt(P.f)}${toe(P.f)}"/><path class="limb" d="M${pt(P.hp)} L${pt(P.n)}${P.s?` M${pt(P.s)} L${pt(P.s2)}`:''}"/>
+    <path class="limb" d="M${pt(P.s||P.n)} L${pt(P.e)} L${pt(P.w)}${P.hd?` L${pt(P.hd)}`:''}"/><circle class="head" r="9" cx="${P.h[0]}" cy="${P.h[1]}"/></svg>`;
+}
+function findRoutineItem(id){
+  if(id===WU_GENERAL.id) return WU_GENERAL; if(id===CD_END.id) return CD_END;
+  for(const src of [CD, WU]) for(const g in src){ const it = src[g].find(x=>x.id===id); if(it) return it; }
+  return null;
+}
+function openRoutineItem(id){
+  const it = findRoutineItem(id); if(!it) return;
+  const sp = STRETCH_POSES[id], info = STRETCH_INFO[id] || {}, en = info.en || WU_EN[id] || it.n;
+  const yt = q => 'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+  const sh = openSheet({title:it.n, foot:null, body:`<div class="stack">
+    ${sp ? `<div class="fig-box" id="rt-fig"></div><p class="small muted" style="margin:-4px 0 0">Hình động rút gọn còn khoảng 11 giây. Khi tập thật, giữ đúng ${esc(it.dose)}.</p>` : ''}
+    <div class="card stack" style="padding:12px"><div class="row"><b style="font-weight:600;flex:1">Cách làm</b><span class="tag">${esc(it.dose)}</span></div><p style="margin:0;font-size:14px">${esc(it.how)}</p>
+      ${info.err?`<div class="note-box warn small"><b>Lỗi hay gặp:</b> ${esc(info.err)}</div>`:''}
+      ${sp?`<p class="small muted" style="margin:0">Căng nhẹ, không đau, không nhún nảy. Mỗi lần thở ra, thả lỏng sâu thêm một chút.</p>`:''}</div>
+    ${it.sec?`<button class="btn ok block" data-act="rt-timer" data-s="${it.sec}" data-n="${esc(it.n)}">Bấm giờ ${it.sec} giây</button>`:''}
+    <div><label class="lbl">Video trên YouTube</label><div class="row"><a class="btn sm" href="${yt(en)}" target="_blank" rel="noopener">Tiếng Anh: ${esc(en)}</a><a class="btn sm" href="${yt(it.n+' hướng dẫn')}" target="_blank" rel="noopener">Tiếng Việt</a></div></div>
+  </div>`, onClick:(ev)=>{ const b=ev.target.closest('[data-act="rt-timer"]'); if(b) startRest(+b.dataset.s, b.dataset.n, 'Đang giãn cơ', 'Xong, đổi bên hoặc bài tiếp'); }});
+  if(sp) mountSpec(sh.el.querySelector('#rt-fig'), sp, {type: id==='breathe' ? 'slow' : 'stretch', label: it.n});
 }
 
 /* ============ EVENTS ============ */
