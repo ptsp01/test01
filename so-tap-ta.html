@@ -7,7 +7,7 @@
 :root{
   --bg:#EDF0F2; --surface:#FFFFFF; --surface-2:#F4F6F8; --ink:#141A21; --ink-2:#4B5562; --ink-3:#7A8491;
   --line:#D8DDE2; --accent:#1F5FD1; --accent-soft:#E3ECFB; --accent-ink:#FFFFFF;
-  --ok:#1E8A47; --ok-soft:#E1F3E7; --danger:#C2362D; --danger-soft:#FBE7E5;
+  --ok:#1E8A47; --ok-soft:#E1F3E7; --warn:#A8670F; --danger:#C2362D; --danger-soft:#FBE7E5;
   --p-red:#D8342C; --p-blue:#2358C8; --p-yellow:#E3AC0E; --p-green:#2E9A4B; --p-black:#3A3F47; --p-white:#C9CFD5;
   --shadow:0 1px 2px rgba(20,26,33,.06),0 4px 16px rgba(20,26,33,.06);
   --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
@@ -18,7 +18,7 @@
     color-scheme:dark;
     --bg:#0E1216; --surface:#171C22; --surface-2:#1F252C; --ink:#E8ECF0; --ink-2:#B0B8C2; --ink-3:#808A96;
     --line:#2A323B; --accent:#6A9AF3; --accent-soft:#1C2A44; --accent-ink:#0E1216;
-    --ok:#4CC27A; --ok-soft:#14301F; --danger:#EF6B61; --danger-soft:#3A1A18;
+    --ok:#4CC27A; --ok-soft:#14301F; --warn:#E0A84A; --danger:#EF6B61; --danger-soft:#3A1A18;
     --p-black:#8A919B; --p-white:#E6EAEE; --shadow:none;
   }
 }
@@ -26,7 +26,7 @@
   color-scheme:dark;
   --bg:#0E1216; --surface:#171C22; --surface-2:#1F252C; --ink:#E8ECF0; --ink-2:#B0B8C2; --ink-3:#808A96;
   --line:#2A323B; --accent:#6A9AF3; --accent-soft:#1C2A44; --accent-ink:#0E1216;
-  --ok:#4CC27A; --ok-soft:#14301F; --danger:#EF6B61; --danger-soft:#3A1A18;
+  --ok:#4CC27A; --ok-soft:#14301F; --warn:#E0A84A; --danger:#EF6B61; --danger-soft:#3A1A18;
   --p-black:#8A919B; --p-white:#E6EAEE; --shadow:none;
 }
 *{box-sizing:border-box}
@@ -201,7 +201,7 @@ select.input{appearance:none;background-image:linear-gradient(45deg,transparent 
 .eblock-h b{font-family:var(--display);font-size:19px;flex:1;text-transform:uppercase}
 .erow{display:grid;grid-template-columns:1fr 84px 36px;gap:6px;align-items:center}
 .erow .nm{font-size:14px;line-height:1.25;display:flex;gap:6px;align-items:center;min-width:0}
-.erow .input{min-height:38px;font-size:15px;padding:0 8px;text-align:center}
+.erow .input{min-height:38px;font-size:16px;padding:0 8px;text-align:center}
 .mini{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .stepper{display:flex;align-items:center;gap:6px}
 .stepper .input{text-align:center;width:64px}
@@ -212,7 +212,43 @@ select.input{appearance:none;background-image:linear-gradient(45deg,transparent 
 .sess ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px;font-size:13px}
 .sess li{display:flex;gap:6px;align-items:center}
 .sess li span:last-child{margin-left:auto;font-family:var(--display);font-size:15px;font-variant-numeric:tabular-nums}
-textarea.input{min-height:120px;padding:10px;font-family:ui-monospace,monospace;font-size:12px}
+textarea.input{min-height:120px;padding:10px;font-family:ui-monospace,monospace;font-size:16px}
+textarea.note{font-family:var(--body);min-height:84px}
+.fig-box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 12px 10px;display:flex;flex-direction:column;gap:4px}
+.fig{width:100%;height:auto;aspect-ratio:200/164;display:block;max-height:46vh;cursor:pointer}
+.fig .limb,.fig .limb2{fill:none;stroke:var(--ink);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.fig .limb2{stroke:var(--ink-3)}
+.fig .head{fill:var(--ink)}
+.fig .prop{fill:none;stroke:var(--ink-3);stroke-width:3;stroke-linecap:round}
+.fig .propf{fill:var(--surface-2);stroke:var(--ink-3);stroke-width:2}
+.fig .item{fill:var(--accent-soft);stroke:var(--accent);stroke-width:3}
+.fig .cable{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:3 3}
+.fig .lung{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+.breath-now{display:flex;align-items:center;gap:10px;min-height:32px}
+.breath-now .ph{font-family:var(--display);font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.02em}
+.breath-now.in .ph{color:var(--accent)}
+.breath-now.out .ph{color:var(--ok)}
+.breath-now.hold .ph{color:var(--warn)}
+.tips{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:14px}
+.note-box{background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:14px}
+.note-box.warn{background:var(--danger-soft)}
+.mgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.mthumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--surface-2);padding:0;max-width:100%}
+.mthumb img,.mthumb video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.mthumb .play{position:absolute;right:6px;top:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center}
+.mthumb .md{position:absolute;left:6px;bottom:6px;font-size:10px;color:#fff;background:rgba(0,0,0,.55);padding:1px 5px;border-radius:4px}
+.madd{aspect-ratio:1;max-width:100%;border:2px dashed var(--line);border-radius:10px;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--ink-2);font-weight:600;padding:4px;text-align:center}
+.viewer video,.viewer img{width:100%;max-height:68vh;border-radius:12px;background:#000;display:block;object-fit:contain}
+a.btn{text-decoration:none;color:inherit}
+.cue{display:flex;gap:8px;align-items:center;font-size:12.5px;line-height:1.35;color:var(--ink-2);margin-top:8px;background:var(--surface-2);border-radius:8px;padding:6px 6px 6px 10px}
+.cue span{flex:1;min-width:0}
+.cue b{color:var(--accent);font-weight:600}
+.wex .mgrid{grid-template-columns:repeat(5,minmax(0,1fr));margin-top:8px}
+details.guide summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;font-weight:600;min-height:40px}
+details.guide summary::-webkit-details-marker{display:none}
+details.guide summary::after{content:'+';margin-left:auto;font-family:var(--display);font-size:24px;color:var(--ink-3)}
+details.guide[open] summary::after{content:'−'}
+details.guide[open] summary{margin-bottom:8px}
 .confirm{background:var(--danger-soft);border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
 .foot-note{margin-top:28px;font-size:12px;color:var(--ink-3);text-align:center}
 </style>
@@ -247,6 +283,7 @@ textarea.input{min-height:120px;padding:10px;font-family:ui-monospace,monospace;
 </nav>
 
 <div id="sheets"></div>
+<input type="file" id="file-in" accept="image/*,video/*" hidden>
 
 <script>
 /* ============ DATA ============ */
@@ -421,16 +458,18 @@ function planById(id){ return S.plans.find(p=>p.id===id); }
 
 /* ============ STATE & STORAGE ============ */
 const LS_KEY = 'sotapta.v1', LS_ACTIVE = 'sotapta.active.v1';
-let S = {plans: defaultPlans(), schedule:{1:'p-push-pull',3:'p-shoulder-arm',5:'p-leg-core'}, logs:{}, sessions:[]};
+let S = {plans: defaultPlans(), schedule:{1:'p-push-pull',3:'p-shoulder-arm',5:'p-leg-core'}, logs:{}, sessions:[], media:[]};
 let A = null;           // buổi tập đang diễn ra
 function lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 const saved = lsGet(LS_KEY); if(saved && saved.plans) S = Object.assign(S, saved);
 A = lsGet(LS_ACTIVE);
 
-let db = null, dbUid = null, lastSynced = {core:'', logs:''}, writing = Promise.resolve(), saveTimer = null;
+let db = null, dbUid = null, lastSynced = {core:'', logs:'', media:''}, writing = Promise.resolve(), saveTimer = null;
 const coreDoc = () => db.doc('data/users/'+dbUid+'/core');
 const logsDoc = () => db.doc('data/users/'+dbUid+'/logs');
+const mediaDoc = () => db.doc('data/users/'+dbUid+'/media');
+function mediaPart(){ return {items:S.media.slice(0,600)}; }
 function corePart(){ return {plans:S.plans, schedule:S.schedule, sessions:S.sessions.slice(0,150)}; }
 function logsPart(){ const l={}; for(const k in S.logs) l[k]=S.logs[k].slice(0,25); return {logs:l}; }
 function setSync(txt, ok){ const el=$('#sync'); el.textContent=txt; el.classList.toggle('ok', !!ok); }
@@ -442,12 +481,13 @@ function save(){
 }
 function pushDb(){
   writing = writing.then(async () => {
-    const c = JSON.stringify(corePart()), l = JSON.stringify(logsPart());
-    if(c===lastSynced.core && l===lastSynced.logs) return;
+    const c = JSON.stringify(corePart()), l = JSON.stringify(logsPart()), m = JSON.stringify(mediaPart());
+    if(c===lastSynced.core && l===lastSynced.logs && m===lastSynced.media) return;
     setSync('Đang lưu…');
     try{
       if(c!==lastSynced.core){ await coreDoc().set(JSON.parse(c)); lastSynced.core=c; }
       if(l!==lastSynced.logs){ await logsDoc().set(JSON.parse(l)); lastSynced.logs=l; }
+      if(m!==lastSynced.media){ await mediaDoc().set(JSON.parse(m)); lastSynced.media=m; }
       setSync('Đã lưu vào tài khoản', true);
     }catch(e){ setSync('Chỉ lưu trên máy'); }
   });
@@ -457,18 +497,20 @@ function saveActive(){ lsSet(LS_ACTIVE, A); }
 async function initDb(){
   if(!window.claude || !window.claude.use) return;
   try{
-    const [d, u] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    const [d, u, as] = await Promise.all([window.claude.use('db'), window.claude.use('user'), window.claude.use('assets').catch(()=>null)]);
+    if(as){ assets = as; onMediaChange(); }
     if(!d || !u) return;
     const id = await u.id(); if(!id) return;
     db = d; dbUid = id;
-    const [cs, ls] = await Promise.all([coreDoc().get(), logsDoc().get()]);
+    const [cs, ls, ms] = await Promise.all([coreDoc().get(), logsDoc().get(), mediaDoc().get()]);
+    if(ms.exists){ S.media = clone(ms.data().items||[]); lastSynced.media=JSON.stringify(mediaPart()); }
     if(cs.exists){ const c=cs.data(); S.plans=c.plans||S.plans; S.schedule=c.schedule||{}; S.sessions=c.sessions||[]; lastSynced.core=JSON.stringify(corePart()); }
     if(ls.exists){ S.logs = clone(ls.data().logs||{}); lastSynced.logs=JSON.stringify(logsPart()); }
     S.plans = clone(S.plans); S.schedule = clone(S.schedule); S.sessions = clone(S.sessions);
     lsSet(LS_KEY, S);
     setSync('Đã lưu vào tài khoản', true);
-    if(!cs.exists || !ls.exists) pushDb();
-    render();
+    if(!cs.exists || !ls.exists || !ms.exists) pushDb();
+    render(); onMediaChange();
   }catch(e){ db=null; setSync('Chỉ lưu trên máy'); }
 }
 
@@ -522,6 +564,7 @@ function renderToday(){
   return `
   <section class="sec" style="margin-top:6px"><div class="week">${week}</div></section>
   <section class="sec">${main}</section>
+  <section class="sec">${guideCard()}</section>
   <section class="sec"><div class="sec-h"><h2>Nhóm cơ lâu chưa tập</h2><button class="btn sm" data-act="quick">Tạo buổi nhanh</button></div>
     <div class="fresh">${fresh.map(f=>`<div class="f"><span class="dot" style="--c:${GROUPS[f.g].c}"></span><div><b>${GROUPS[f.g].n}</b><small>${agoText(f.d)}</small></div></div>`).join('')}</div>
   </section>
@@ -560,6 +603,10 @@ function renderWEx(x,bi,xi){
       <div class="wex-acts"><button class="icon-btn" title="Đổi bài khác cùng nhóm" aria-label="Đổi bài" data-act="w-swap" data-b="${bi}" data-x="${xi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></button>
       <button class="icon-btn" title="Bỏ bài này" aria-label="Bỏ bài" data-act="w-rm-ex" data-b="${bi}" data-x="${xi}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     </div>
+    <div class="cue"><span><b>Thở:</b> ${CUE[breathType(x.id)]}</span>
+      <button class="icon-btn" aria-label="Xem hình động và cách thở" title="Hướng dẫn" data-act="ex-info" data-id="${x.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
+      ${assets?`<button class="icon-btn" aria-label="Quay hoặc thêm ảnh, video cho bài này" title="Ảnh/video" data-act="media-add" data-ex="${x.id}" data-sk="${A.start}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`:''}</div>
+    ${mediaFor(x.id, A.start).length?`<div class="mgrid">${mediaFor(x.id, A.start).map(mediaThumb).join('')}</div>`:''}
     <div class="sets"><span class="hd" style="text-align:center">Hiệp</span><span class="hd">Kg</span><span class="hd">${u==='giây'?'Giây':'Số lần'}</span><span></span>
     ${x.sets.map((s,si)=>`<span class="sn">${si+1}</span>
       <input id="kg-${bi}-${xi}-${si}" class="${s.done?'srow-done':''}" inputmode="decimal" value="${s.kg||''}" placeholder="0" data-f="kg" data-b="${bi}" data-x="${xi}" data-s="${si}" aria-label="Kg hiệp ${si+1}">
@@ -608,7 +655,7 @@ function finishWorkout(){
     exSum.push({id:x.id, top:topSet({s:done}), n:done.length});
   }));
   if(exSum.length){
-    S.sessions.unshift({id:uid(), d:today, planId:A.planId, name:A.name, min:Math.max(1,Math.round((Date.now()-A.start)/60000)), ex:exSum});
+    S.sessions.unshift({id:uid(), sk:A.start, d:today, planId:A.planId, name:A.name, min:Math.max(1,Math.round((Date.now()-A.start)/60000)), ex:exSum, note:(A.note||'').trim(), feel:A.feel||''});
     S.sessions = S.sessions.slice(0,150);
   }
   A = null; saveActive(); save(); stopRest(); closeAllSheets(); render();
@@ -685,10 +732,13 @@ function renderHist(){
   S.sessions.forEach(s=>{ const k=s.d.slice(0,7); (byMonth[k]=byMonth[k]||[]).push(s); });
   const body = Object.keys(byMonth).map(k=>`<div class="sec"><div class="sec-h"><h2>Tháng ${+k.slice(5)}/${k.slice(0,4)}</h2><small>${byMonth[k].length} buổi</small></div><div class="stack">${byMonth[k].map(s=>`
     <div class="card sess"><div class="sess-h"><b>${esc(s.name)}</b><span class="small muted">${fmtDate(s.d)}${s.min?' · '+s.min+' phút':''}</span></div>
-    <ul>${s.ex.map(x=>{const e=EX[x.id]; return e?`<li><span class="dot" style="--c:${GROUPS[e.g].c};width:9px;height:9px"></span><span>${esc(e.vn)} <span class="muted">(${x.n} hiệp)</span></span><span>${fmtSet(x.top,x.id)}</span></li>`:'';}).join('')}</ul></div>`).join('')}</div></div>`).join('');
+    <ul>${s.ex.map(x=>{const e=EX[x.id]; return e?`<li><span class="dot" style="--c:${GROUPS[e.g].c};width:9px;height:9px"></span><span>${esc(e.vn)} <span class="muted">(${x.n} hiệp)</span></span><span>${fmtSet(x.top,x.id)}</span></li>`:'';}).join('')}</ul>
+    ${s.feel||s.note?`<div class="note-box">${s.feel?`<span class="tag">Cảm nhận: ${esc(s.feel)}</span> `:''}${esc(s.note||'')}</div>`:''}
+    ${s.sk && (assets || mediaFor(null, s.sk).length) ? gridBox(null, s.sk) : ''}</div>`).join('')}</div></div>`).join('');
   return `${body || '<div class="card empty" style="margin-top:12px">Chưa có buổi tập nào. Bấm “Kết thúc” sau khi tập để lưu vào đây.</div>'}
   <section class="sec"><div class="sec-h"><h2>Sao lưu dữ liệu</h2></div>
     <div class="card stack"><p class="small muted" style="margin:0">Sao chép toàn bộ kế hoạch, số kg và lịch sử thành đoạn mã. Dán lại vào ô khôi phục khi đổi máy.</p>
+    <p class="small muted" style="margin:0">Ảnh và video không nằm trong đoạn sao lưu; chúng được lưu kèm trang này trên Claude.</p>
     <div class="row"><button class="btn" data-act="export">Sao chép dữ liệu</button><button class="btn" data-act="import-open">Khôi phục</button></div></div></section>`;
 }
 
@@ -699,7 +749,7 @@ function openSheet({title, body, foot, onClick, onInput, id}){
   w.innerHTML = `<div class="sheet-bg" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-h"><h2>${esc(title)}</h2><button class="icon-btn" data-close aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="sheet-b"></div>${foot!=null?'<div class="sheet-f"></div>':''}</div>`;
   const sh = {el:w, id, set(b,f){ w.querySelector('.sheet-b').innerHTML=b; if(f!=null && w.querySelector('.sheet-f')) w.querySelector('.sheet-f').innerHTML=f; }};
   sh.set(body, foot);
-  w.addEventListener('click', ev=>{ if(ev.target.closest('[data-close]')){ closeSheet(); return; } onClick && onClick(ev, sh); });
+  w.addEventListener('click', ev=>{ if(ev.target.closest('[data-close]')){ closeSheet(); return; } if(commonAct(ev)) return; onClick && onClick(ev, sh); });
   onInput && w.addEventListener('input', ev=>onInput(ev, sh));
   $('#sheets').appendChild(w); sheetStack.push(sh); document.body.style.overflow='hidden';
   return sh;
@@ -756,7 +806,14 @@ function openDetail(id){
   }
   const inPlans = S.plans.filter(p=>p.blocks.some(b=>b.ex.some(x=>x.id===id)));
   const le = logs[0]; const ts = topSet(le);
+  const bt = breathType(id), br = BREATH[bt], pat = PAT_OF[id] || 'curl';
+  const yt = q => 'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
   const body = `<div class="stack">
+    <div class="fig-box" id="fig-box"></div>
+    <div class="card stack" style="padding:12px"><b style="font-weight:600">Cách thở: ${br.t}</b><ol class="tips">${br.s.map(x=>`<li>${x}</li>`).join('')}</ol>${br.warn?`<div class="note-box warn small">${br.warn}</div>`:''}</div>
+    <div class="card stack" style="padding:12px"><b style="font-weight:600">Tránh chấn thương</b><ul class="tips">${(SAFETY[pat]||[]).map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div><label class="lbl">Video hướng dẫn trên YouTube</label><div class="row"><a class="btn sm" href="${yt(e.en+' proper form')}" target="_blank" rel="noopener">Tiếng Anh: ${esc(e.en)}</a><a class="btn sm" href="${yt(e.vn+' hướng dẫn')}" target="_blank" rel="noopener">Tiếng Việt</a></div></div>
+    <div><label class="lbl">Ảnh/video của tôi</label>${gridBox(id, null)}<p class="small muted" style="margin:6px 0 0">Quay góc nghiêng, khoảng 15–30 giây. Video trên 20 MB được nén tự động (mất tiếng).</p></div>
     <div class="row"><span class="tag"><span class="dot" style="--c:${GROUPS[e.g].c};width:9px;height:9px"></span>${GROUPS[e.g].n}</span><span class="tag">${esc(e.eq)}</span><span class="tag ${le&&daysAgo(le.d)<=7?'ok':''}">${agoText(le?daysAgo(le.d):null)}</span></div>
     <dl class="kv"><dt>Tên tiếng Anh</dt><dd>${esc(e.en)}</dd><dt>Cơ chính</dt><dd>${esc(e.mu)}</dd><dt>Gợi ý</dt><dd>${DEF_REPS[e.k]} ${u}/hiệp</dd>${ts?`<dt>Mức gần nhất</dt><dd><b>${fmtSet(ts,id)}</b></dd>`:''}${inPlans.length?`<dt>Có trong</dt><dd>${inPlans.map(p=>esc(p.name)).join(', ')}</dd>`:''}</dl>
     ${chart}
@@ -767,7 +824,7 @@ function openDetail(id){
     ${logs.length?`<div><label class="lbl">Lịch sử</label><div class="hist-list">${logs.map(l=>`<div class="hi"><span>${fmtDate(l.d)}</span><span class="num" style="font-size:15px">${l.s.map(s=>fmtSet(s,id)).join(' · ')}</span></div>`).join('')}</div></div>`:''}
     ${S.plans.length?`<div><label class="lbl" for="add-to-plan">Thêm vào kế hoạch</label><div class="row" style="flex-wrap:nowrap"><select id="add-to-plan" class="input">${S.plans.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select><button class="btn" data-act="add-to-plan">Thêm</button></div><p class="small muted" style="margin:4px 0 0">Bài được ghép vào superset cuối nếu khối đó còn 1 bài, nếu không sẽ tạo superset mới.</p></div>`:''}
   </div>`;
-  openSheet({title:e.vn, body, foot:null, onClick:(ev,sh)=>{
+  const dsh = openSheet({title:e.vn, body, foot:null, onClick:(ev,sh)=>{
     const b=ev.target.closest('[data-act]'); if(!b) return;
     if(b.dataset.act==='qk-save'){
       const kg=numOr(sh.el.querySelector('#qk-kg').value), r=Math.round(numOr(sh.el.querySelector('#qk-r').value)), n=Math.max(1,Math.min(10,Math.round(numOr(sh.el.querySelector('#qk-s').value,1))));
@@ -785,6 +842,7 @@ function openDetail(id){
       save(); closeSheet(); render(); toast('Đã thêm vào “'+p.name+'”');
     }
   }});
+  mountFig(dsh.el.querySelector('#fig-box'), id);
 }
 
 /* trình sửa kế hoạch */
@@ -889,6 +947,340 @@ function openQuick(){
     }});
 }
 
+/* ============ HÌNH ĐỘNG & NHỊP THỞ ============ */
+const PAT_IDS = {
+  squat:'squat front-squat goblet leg-press hack-squat',
+  lunge:'bulgarian lunge step-up',
+  hinge:'deadlift rack-pull rdl sumo-dl good-morning back-ext',
+  pressL:'bb-bench bb-incline bb-decline db-bench db-incline db-decline smith-incline chest-press db-fly db-incline-fly pec-deck cg-bench skull',
+  pushup:'pushup decline-pushup',
+  dip:'chest-dip tri-dip bench-dip',
+  pull:'pullup chinup lat-pulldown cg-pulldown straight-pulldown db-pullover',
+  row:'bb-row db-row tbar-row cs-row inverted-row',
+  srow:'cable-row face-pull',
+  ohp:'ohp db-shoulder arnold machine-shoulder landmine',
+  raise:'lat-raise cable-lat-raise front-raise rear-fly reverse-pec',
+  upright:'upright-row', shrug:'shrug',
+  curl:'bb-curl ez-curl db-curl hammer incline-curl preacher cable-curl conc-curl wrist-curl reverse-curl',
+  tri:'pushdown rope-pushdown oh-ext kickback',
+  legext:'leg-ext', legcurl:'lying-curl seated-curl',
+  thrust:'hip-thrust glute-bridge', abduct:'adduction abduction',
+  calf:'calf-stand calf-seat', plank:'plank side-plank hollow',
+  crunch:'crunch cable-crunch bicycle v-up', legraise:'hanging-raise lying-raise',
+  rollout:'ab-wheel', deadbug:'dead-bug',
+  pallof:'pallof cable-cross cable-low-fly woodchop russian-twist',
+  climber:'climber', carry:'farmer'
+};
+const PAT_OF = {}; for(const p in PAT_IDS) PAT_IDS[p].split(' ').forEach(id=>PAT_OF[id]=p);
+
+const STAND = {h:[101,29], n:[100,42], hp:[100,78], k:[101,106], f:[100,134], e:[103,65], w:[105,88]};
+const SP = o => Object.assign({}, STAND, o);
+const FLOOR = '<line class="prop" x1="8" y1="137" x2="192" y2="137"/>';
+const BENCH = (x1,x2,y) => `<rect class="propf" x="${x1}" y="${y}" width="${x2-x1}" height="6" rx="2"/><line class="prop" x1="${x1+8}" y1="${y+6}" x2="${x1+8}" y2="137"/><line class="prop" x1="${x2-8}" y1="${y+6}" x2="${x2-8}" y2="137"/>`;
+const TOPBAR = '<line class="prop" x1="66" y1="-6" x2="146" y2="-6"/>';
+// B = tư thế co cơ (cuối pha dùng lực), A = tư thế duỗi (cuối pha hạ)
+const POSES = {
+  squat:{B:SP({e:[88,50],w:[95,42]}), A:{h:[113,64],n:[108,76],hp:[86,108],k:[116,110],f:[100,134],e:[94,84],w:[101,76]}, props:FLOOR},
+  lunge:{B:SP({k2:[98,106],f2:[95,134]}), A:{h:[104,50],n:[103,63],hp:[100,98],k:[126,106],f:[124,134],k2:[86,128],f2:[62,133],e:[105,85],w:[106,107]}, props:FLOOR},
+  hinge:{B:SP({}), A:{h:[134,70],n:[121,78],hp:[86,92],k:[110,112],f:[100,134],e:[120,100],w:[118,120]}, props:FLOOR},
+  pressL:{body:{h:[141,88],n:[128,92],hp:[72,92],k:[46,100],f:[40,134]}, B:{e:[129,70],w:[128,48]}, A:{e:[112,104],w:[126,82]}, props:BENCH(52,150,98)+FLOOR, noToe:1},
+  pushup:{B:{h:[152,82],n:[140,88],hp:[88,110],k:[64,122],f:[40,133],e:[140,110],w:[140,133]}, A:{h:[153,113],n:[140,118],hp:[88,124],k:[64,129],f:[40,133],e:[124,120],w:[140,133]}, props:FLOOR, noToe:1},
+  dip:{B:{h:[101,25],n:[100,38],e:[100,58],w:[100,80],hp:[98,74],k:[94,100],f:[80,116]}, A:{h:[104,49],n:[102,62],e:[82,70],w:[100,80],hp:[98,98],k:[94,124],f:[80,140]}, props:'<line class="prop" x1="78" y1="82" x2="132" y2="82"/><line class="prop" x1="128" y1="82" x2="128" y2="137"/>', noToe:1},
+  pull:{B:{h:[98,6],n:[99,19],e:[115,22],w:[110,-4],hp:[97,55],k:[101,82],f:[94,108]}, A:{h:[98,28],n:[102,40],e:[107,18],w:[110,-4],hp:[99,76],k:[101,104],f:[96,130]}, props:TOPBAR, noToe:1, anchor:[110,-14]},
+  row:{body:{h:[132,64],n:[120,70],hp:[86,88],k:[108,110],f:[100,134]}, B:{e:[102,70],w:[110,90]}, A:{e:[121,92],w:[122,114]}, props:FLOOR},
+  srow:{body:{hp:[78,108],k:[108,96],f:[138,104]}, B:{n:[76,70],h:[76,57],e:[62,90],w:[88,98]}, A:{n:[88,72],h:[92,59],e:[108,82],w:[130,86]}, props:'<rect class="propf" x="58" y="110" width="40" height="6" rx="2"/><line class="prop" x1="140" y1="92" x2="140" y2="137"/>'+FLOOR, noToe:1, anchor:[190,90]},
+  ohp:{B:SP({e:[104,22],w:[103,-1]}), A:SP({e:[113,58],w:[112,38]}), props:FLOOR},
+  raise:{A:SP({}), B:SP({e:[124,46],w:[148,46]}), props:FLOOR},
+  upright:{A:SP({}), B:SP({e:[118,36],w:[110,50]}), props:FLOOR},
+  shrug:{A:SP({}), B:SP({n:[100,35],h:[101,22],e:[103,58],w:[105,81]}), props:FLOOR},
+  curl:{A:SP({}), B:SP({w:[117,46]}), props:FLOOR},
+  tri:{A:SP({w:[122,50]}), B:SP({w:[106,89]}), props:FLOOR, anchor:[128,-12]},
+  legext:{body:{hp:[82,100],n:[80,62],h:[80,49],e:[84,84],w:[92,102],k:[110,100]}, A:{f:[108,130]}, B:{f:[137,94]}, props:'<rect class="propf" x="60" y="104" width="54" height="6" rx="2"/><rect class="propf" x="56" y="56" width="6" height="50" rx="2"/><line class="prop" x1="86" y1="110" x2="86" y2="137"/>'+FLOOR, noToe:1},
+  legcurl:{body:{hp:[86,92],n:[140,92],h:[153,89],e:[146,100],w:[158,102],k:[58,92]}, A:{f:[28,94]}, B:{f:[52,63]}, props:BENCH(40,150,98)+FLOOR, noToe:1},
+  thrust:{body:{n:[60,92],h:[47,88],f:[140,134]}, B:{hp:[98,88],k:[126,92],e:[78,100],w:[96,90]}, A:{hp:[90,122],k:[122,104],e:[74,108],w:[88,118]}, props:BENCH(22,64,94)+FLOOR, item:'hip'},
+  abduct:{body:{hp:[100,98],n:[100,58],h:[100,45],e:[86,80],w:[82,100],e2:[114,80],w2:[118,100]}, B:{k:[66,100],f:[62,130],k2:[134,100],f2:[138,130]}, A:{k:[88,104],f:[88,132],k2:[112,104],f2:[112,132]}, props:'<rect class="propf" x="70" y="100" width="60" height="6" rx="2"/>'+FLOOR, noToe:1, sym:1},
+  calf:{A:SP({t:[112,134]}), B:{h:[101,21],n:[100,34],hp:[100,70],k:[101,98],f:[100,126],e:[103,57],w:[105,80],t:[112,134]}, props:FLOOR},
+  plank:{B:{h:[149,104],n:[136,108],hp:[88,119],k:[64,126],f:[40,133],e:[136,133],w:[156,133]}, props:FLOOR, noToe:1},
+  crunch:{body:{hp:[92,128],k:[116,106],f:[138,133]}, A:{n:[48,128],h:[35,126],e:[44,114],w:[36,118]}, B:{n:[62,110],h:[54,98],e:[70,100],w:[56,96]}, props:FLOOR, noToe:1},
+  legraise:{body:{w:[100,-4],e:[100,16],n:[100,36],h:[94,26],hp:[100,72]}, A:{k:[101,100],f:[101,128]}, B:{k:[126,76],f:[154,74]}, props:TOPBAR, noToe:1},
+  rollout:{B:{k:[62,132],f:[36,134],hp:[70,104],n:[96,72],h:[105,61],e:[106,96],w:[110,120]}, A:{k:[62,132],f:[36,134],hp:[88,116],n:[138,106],h:[151,102],e:[156,114],w:[170,122]}, props:FLOOR, noToe:1, item:'wheel'},
+  deadbug:{body:{hp:[96,128],n:[46,128],h:[33,126]}, A:{e:[46,108],w:[46,88],k:[96,104],f:[120,104]}, B:{e:[32,116],w:[14,118],k:[122,120],f:[150,124]}, props:FLOOR, noToe:1},
+  pallof:{A:SP({e:[112,60],w:[114,54]}), B:SP({e:[124,52],w:[147,52]}), props:FLOOR, anchor:[12,54]},
+  climber:{body:{w:[140,133],e:[140,111],n:[140,88],h:[152,82],hp:[90,108]}, A:{k:[118,112],f:[100,128],k2:[66,118],f2:[42,131]}, B:{k:[66,118],f:[42,131],k2:[118,112],f2:[100,128]}, props:FLOOR, noToe:1, alt:1},
+  carry:{A:SP({k:[110,106],f:[116,134],k2:[92,107],f2:[86,134]}), B:SP({k:[92,107],f:[86,134],k2:[110,106],f2:[116,134]}), props:FLOOR, alt:1}
+};
+for(const k in POSES){ const s=POSES[k]; s.B=Object.assign({}, s.body||{}, s.B); s.A=Object.assign({}, s.body||{}, s.A||s.B); }
+
+function breathType(id){
+  const p = PAT_OF[id], e = EX[id];
+  if(['plank','carry','climber'].includes(p)) return 'iso';
+  if(['crunch','legraise','rollout','deadbug'].includes(p)) return 'core';
+  if(e.k==='c' && ['squat','hinge','thrust'].includes(p)) return 'brace';
+  if(e.k==='c' && ['pressL','ohp','row','lunge'].includes(p) && ['Tạ đòn','Máy Smith'].includes(e.eq)) return 'brace';
+  return 'std';
+}
+// a/b: vị trí tư thế (0 = co cơ, 1 = duỗi); l0/l1: lượng hơi trong phổi
+const TL = {
+  std:[{d:.5,a:0,b:0,l0:0,l1:0,t:'Thở ra hết',c:'out'},{d:2,a:0,b:1,l0:0,l1:1,t:'Hít vào · hạ chậm',c:'in'},{d:.4,a:1,b:1,l0:1,l1:1,t:'Dừng ngắn',c:'hold'},{d:1.3,a:1,b:0,l0:1,l1:0,t:'Thở ra · dùng lực',c:'out'}],
+  brace:[{d:1.2,a:0,b:0,l0:0,l1:1,t:'Hít sâu vào bụng · gồng',c:'in'},{d:2,a:0,b:1,l0:1,l1:1,t:'Giữ hơi · hạ xuống',c:'hold'},{d:.3,a:1,b:1,l0:1,l1:1,t:'Giữ hơi',c:'hold'},{d:1.5,a:1,b:0,l0:1,l1:0,t:'Đẩy lên · thở ra',c:'out'}],
+  core:[{d:.5,a:0,b:0,l0:0,l1:0,t:'Thở ra hết',c:'out'},{d:1.8,a:0,b:1,l0:0,l1:1,t:'Hít vào · về chậm',c:'in'},{d:.3,a:1,b:1,l0:1,l1:1,t:'Dừng ngắn',c:'hold'},{d:1.3,a:1,b:0,l0:1,l1:0,t:'Thở ra hết · siết bụng',c:'out'}],
+  iso:[{d:3,a:0,b:0,l0:0,l1:1,t:'Hít vào bằng bụng · 3 giây',c:'in'},{d:3,a:0,b:0,l0:1,l1:0,t:'Thở ra · giữ bụng gồng',c:'out'}]
+};
+const CUE = {
+  std:'Hạ hoặc trả về: hít vào. Đẩy, kéo, nâng: thở ra. Không nín thở.',
+  brace:'Ở trên: hít sâu vào bụng, gồng chặt. Giữ hơi khi hạ. Thở ra khi đã qua điểm khó.',
+  core:'Gập hoặc nâng: thở ra hết. Về chậm: hít vào.',
+  iso:'Thở đều: hít 3 giây, thở 3 giây. Không nín thở.'
+};
+const BREATH = {
+  std:{t:'Thở theo lực', s:['Hít vào bằng mũi khi hạ tạ hoặc trả về (pha chậm, khoảng 2–3 giây).','Thở ra bằng miệng khi kéo, đẩy hoặc nâng (pha dùng lực).','Không nín thở. Nếu phải nín thở mới làm được thì tạ đang quá nặng với bài này.']},
+  brace:{t:'Gồng bụng giữ hơi (bài đa khớp nặng)', s:['Ở tư thế trên: hít sâu vào bụng (bụng và hông phình ra, vai không nhô lên), gồng bụng như sắp bị đấm vào bụng.','Giữ hơi trong lúc hạ xuống và qua điểm khó nhất để cột sống được đỡ chắc.','Thở ra khi đã qua điểm khó hoặc khi lên gần hết. Hít lại ở trên trước lần tiếp theo.','Chỉ giữ hơi trong 1 lần lặp. Với hiệp nhẹ hoặc từ 10 lần trở lên, chỉ cần thở ra đều mỗi lần đẩy lên.'], warn:'Không dùng cách giữ hơi nếu bạn bị tăng huyết áp, bệnh tim mạch, tăng nhãn áp, thoát vị, đang mang thai, hoặc thấy chóng mặt, hoa mắt. Khi đó thở ra đều trong lúc đẩy lên.'},
+  core:{t:'Thở ra khi siết bụng', s:['Thở ra hết khi gập bụng hoặc nâng chân, giúp bụng co sâu hơn.','Hít vào khi về chậm, giữ lưng dưới không bật khỏi sàn.','Không nín thở, không giật cổ.']},
+  iso:{t:'Thở đều khi giữ tư thế', s:['Thở bằng bụng, chậm: hít khoảng 3 giây, thở ra 3 giây.','Vẫn giữ bụng gồng nhẹ trong lúc thở, không để võng hông.','Khi phải nín thở mới giữ được tư thế thì dừng hiệp, vì tư thế sắp hỏng.']}
+};
+const SAFETY = {
+  squat:['Đầu gối hướng cùng chiều mũi chân, không đổ vào trong.','Gót chân luôn chạm sàn, lưng giữ thẳng tự nhiên.','Chỉ xuống sâu tới mức lưng dưới chưa bị cong (gù).'],
+  lunge:['Gối trước hướng theo mũi chân, không đổ vào trong.','Thân người thẳng, trọng tâm dồn vào chân trước.','Bước đủ dài để gối trước không bị dồn ép.'],
+  hinge:['Thanh tạ đi sát ống chân và đùi suốt động tác.','Đẩy hông ra sau, giữ lưng thẳng; không cúi gập lưng để nhấc tạ.','Đứng thẳng ở trên, không ngả người ra sau.'],
+  pressL:['Ép hai bả vai ra sau và xuống, giữ suốt hiệp.','Khuỷu tay khoảng 45–70° so với thân, không bè ngang 90°.','Tạ nặng: có người hỗ trợ hoặc dùng thanh chặn an toàn.'],
+  pushup:['Thân thẳng như tấm ván từ đầu tới gót.','Không để võng hông hay chổng mông.','Bàn tay dưới vai, khuỷu hơi khép về thân.'],
+  dip:['Không xuống quá sâu nếu thấy đau phía trước vai.','Giữ vai hạ xuống, không nhô lên sát tai.','Lên xuống có kiểm soát, không nảy ở dưới.'],
+  pull:['Kéo bả vai xuống trước, rồi mới gập tay.','Không đánh đu người lấy đà.','Hạ hết tầm nhưng vẫn giữ vai chắc, không buông thõng.'],
+  row:['Lưng thẳng, cổ thẳng theo lưng.','Kéo bằng khuỷu tay về phía hông, không giật người.','Siết bả vai ở cuối, hạ chậm.'],
+  srow:['Ngồi thẳng, không ngả người quá ra sau để kéo.','Kéo khuỷu ra sau, siết bả vai.','Trả về chậm, không để tạ kéo giật vai.'],
+  ohp:['Gồng mông và bụng, không ưỡn lưng dưới.','Thanh tạ đi sát mặt, lên thẳng trên đỉnh đầu.','Không khóa giật khuỷu ở trên.'],
+  raise:['Dùng tạ nhẹ, không vung người lấy đà.','Nâng tới ngang vai là đủ.','Khuỷu hơi cong, hạ chậm.'],
+  upright:['Kéo tới ngang ngực dưới, không cao hơn vai.','Dừng bài nếu thấy đau hoặc kẹt ở vai.','Tay cầm rộng hơn vai giúp vai dễ chịu hơn.'],
+  shrug:['Nâng vai thẳng lên, không xoay vai.','Dừng 1 giây ở trên rồi hạ chậm.','Cổ thẳng, không cúi đầu.'],
+  curl:['Khuỷu cố định sát thân.','Không đánh lưng hoặc vung tạ.','Hạ chậm hết tầm.'],
+  tri:['Khuỷu cố định, chỉ cẳng tay di chuyển.','Duỗi hết nhưng không khóa giật khuỷu.','Thân đứng vững, không đè người lên tạ.'],
+  legext:['Không khóa giật gối ở trên.','Hạ chậm, không thả rơi tạ.','Chỉnh đệm chân ngay trên cổ chân.'],
+  legcurl:['Hông áp sát ghế, không nhấc hông.','Gập chậm, hạ chậm.','Không giật ở đầu động tác.'],
+  thrust:['Cằm hơi cúi, mắt nhìn về phía trước.','Siết mông ở trên, không ưỡn lưng dưới.','Ống chân gần thẳng đứng ở tư thế trên.'],
+  abduct:['Chuyển động chậm, có kiểm soát.','Ngồi thẳng, lưng tựa ghế.','Không bật nảy ở cuối tầm.'],
+  calf:['Xuống hết tầm, dừng 1 giây ở dưới.','Không nhún nảy.','Gối thẳng nhưng không khóa cứng.'],
+  plank:['Hông ngang vai, siết mông và bụng.','Cổ thẳng, mắt nhìn sàn.','Dừng khi lưng dưới bắt đầu võng.'],
+  crunch:['Không dùng tay kéo cổ.','Gập phần ngực về phía hông, không bật cả người.','Lưng dưới áp sàn.'],
+  legraise:['Không đánh đu, nâng bằng bụng.','Cuộn xương chậu lên ở cuối động tác.','Hạ chậm, có kiểm soát.'],
+  rollout:['Chỉ lăn xa tới mức còn giữ lưng thẳng.','Siết bụng và mông suốt động tác.','Người mới tập: lăn ngắn, tăng dần.'],
+  deadbug:['Lưng dưới áp sàn suốt bài.','Duỗi tay chân đối bên chậm rãi.','Thở ra khi duỗi ra.'],
+  pallof:['Hông và vai hướng thẳng, chống lại lực xoay.','Gồng bụng, không nghiêng người.','Đẩy ra chậm, giữ 1–2 giây.'],
+  climber:['Hông ngang vai, tay thẳng dưới vai.','Giữ nhịp đều, không để hông nảy lên xuống.','Thở đều theo nhịp chân.'],
+  carry:['Đứng thẳng, vai không rũ, không nghiêng người.','Bước ngắn và đều.','Đặt tạ xuống bằng cách gập hông, không cúi lưng.']
+};
+function itemOf(id, spec){
+  if(spec.item==='wheel') return 'wheel';
+  const eq = EX[id].eq;
+  if(['Tạ đòn','Tạ EZ','Máy Smith','Tạ đĩa'].includes(eq)) return 'plate';
+  if(eq.startsWith('Tạ đơn')) return 'db';
+  return '';
+}
+const ITEM_SVG = {plate:'<circle r="12"/>', db:'<rect x="-10" y="-4" width="20" height="8" rx="2"/>', wheel:'<circle r="9"/>'};
+let FIG = null;
+const ease = x => x<.5 ? 2*x*x : 1-Math.pow(-2*x+2,2)/2;
+function lerpPose(B,A,p){ const o={}; new Set([...Object.keys(B),...Object.keys(A)]).forEach(k=>{ const b=B[k]||A[k], a=A[k]||B[k]; o[k]=[b[0]+(a[0]-b[0])*p, b[1]+(a[1]-b[1])*p]; }); return o; }
+function mountFig(box, id){
+  const pat = PAT_OF[id] || 'curl';
+  const spec0 = POSES[pat];
+  const spec = Object.assign({}, spec0);
+  if(id==='adduction'){ spec.A=spec0.B; spec.B=spec0.A; }
+  const item = itemOf(id, spec);
+  const cable = EX[id].eq.includes('Cáp');
+  const anchor = spec.anchor || [124,136];
+  box.innerHTML = `<svg class="fig" viewBox="0 -14 200 164" role="img" aria-label="Hình động minh họa ${esc(EX[id].vn)} kèm nhịp thở">
+    <g>${spec.props||''}</g>
+    <line class="cable" ${cable?'':'visibility="hidden"'} x1="${anchor[0]}" y1="${anchor[1]}"/>
+    <path class="${spec.sym?'limb':'limb2'}" data-p="leg2"/><path class="limb2" data-p="arm2"/>
+    <path class="limb" data-p="leg"/><path class="limb" data-p="torso"/><path class="limb" data-p="arm"/>
+    <circle class="head" r="9"/><g class="item">${ITEM_SVG[item]||''}</g>
+    <circle class="lung" cx="20" cy="2" r="8"/><text x="40" y="6" font-size="10" fill="var(--ink-3)">lượng hơi trong phổi</text></svg>
+    <div class="breath-now"><span class="ph"></span><span class="small muted" style="margin-left:auto">Chạm hình để dừng</span></div>`;
+  const svg = box.querySelector('svg');
+  const q = s => svg.querySelector(s);
+  FIG = {svg, spec, type:breathType(id), t0:performance.now(), paused:false, lastSeg:null,
+    leg:q('[data-p="leg"]'), leg2:q('[data-p="leg2"]'), arm:q('[data-p="arm"]'), arm2:q('[data-p="arm2"]'), torso:q('[data-p="torso"]'),
+    head:q('.head'), item:q('.item'), itemT:item, cable:cable?q('.cable'):null, lung:q('.lung'),
+    bn:box.querySelector('.breath-now'), ph:box.querySelector('.ph'), hint:box.querySelector('.breath-now .muted')};
+  const F = FIG;
+  svg.addEventListener('click', ()=>{ F.paused=!F.paused; if(!F.paused) F.t0=performance.now(); F.hint.textContent = F.paused ? 'Đã dừng · chạm để chạy' : 'Chạm hình để dừng'; });
+  drawPose(F, spec.B, 0); F.ph.textContent = TL[F.type][0].t; F.bn.className='breath-now '+TL[F.type][0].c;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){ F.paused=true; F.hint.textContent='Chạm hình để xem chuyển động'; }
+  requestAnimationFrame(figFrame);
+}
+function legPath(hp,k,f,toe){ return `M${hp} L${k} L${f}`+(toe?` L${toe}`:''); }
+function drawPose(F, P, l){
+  const pt = a => a[0].toFixed(1)+' '+a[1].toFixed(1);
+  const toe = (f,t) => F.spec.noToe ? null : pt(t || [f[0]+11, f[1]]);
+  F.leg.setAttribute('d', legPath(pt(P.hp),pt(P.k),pt(P.f),toe(P.f,P.t)));
+  F.leg2.setAttribute('d', P.k2 ? legPath(pt(P.hp),pt(P.k2),pt(P.f2),toe(P.f2)) : '');
+  F.torso.setAttribute('d', `M${pt(P.hp)} L${pt(P.n)}`);
+  F.arm.setAttribute('d', `M${pt(P.n)} L${pt(P.e)} L${pt(P.w)}`);
+  F.arm2.setAttribute('d', P.e2 ? `M${pt(P.n)} L${pt(P.e2)} L${pt(P.w2)}` : '');
+  F.head.setAttribute('cx', P.h[0]); F.head.setAttribute('cy', P.h[1]);
+  const ip = F.spec.item==='hip' ? [P.hp[0], P.hp[1]-9] : F.itemT==='wheel' ? [P.w[0], P.w[1]+5] : P.w;
+  F.item.setAttribute('transform', `translate(${ip[0].toFixed(1)} ${ip[1].toFixed(1)})`);
+  if(F.cable){ F.cable.setAttribute('x2', P.w[0]); F.cable.setAttribute('y2', P.w[1]); }
+  F.lung.setAttribute('r', (6+9*l).toFixed(1));
+}
+function figFrame(now){
+  const F = FIG;
+  if(!F || !F.svg.isConnected){ return; }
+  if(!F.paused){
+    const tl = TL[F.type]; const total = tl.reduce((a,s)=>a+s.d,0);
+    let t = ((now-F.t0)/1000) % total, seg = tl[tl.length-1];
+    for(const s of tl){ if(t < s.d){ seg = s; break; } t -= s.d; }
+    const x = ease(Math.min(1, Math.max(0, t/seg.d)));
+    let p = seg.a + (seg.b-seg.a)*x;
+    if(F.spec.alt) p = (Math.sin((now-F.t0)/1000*Math.PI*2/1.2)+1)/2;
+    drawPose(F, lerpPose(F.spec.B, F.spec.A, p), seg.l0 + (seg.l1-seg.l0)*x);
+    if(F.lastSeg !== seg){ F.lastSeg = seg; F.ph.textContent = seg.t; F.bn.className = 'breath-now '+seg.c; }
+  }
+  requestAnimationFrame(figFrame);
+}
+
+/* ============ ẢNH & VIDEO ============ */
+let assets = null;
+const MAX_UP = 20*1024*1024 - 64*1024;
+const mediaSrc = m => '/_blob/'+m.id;
+function mediaFor(ex, sk){ return S.media.filter(m => (!ex || m.ex===ex) && (!sk || m.sk===+sk)); }
+function mediaThumb(m){
+  return `<button class="mthumb" data-act="media-view" data-id="${m.id}" aria-label="Xem ${m.t==='vid'?'video':'ảnh'} ngày ${esc(fmtDate(m.d))}">${m.t==='vid'
+    ? `<video src="${mediaSrc(m)}#t=0.1" muted playsinline preload="metadata"></video><span class="play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l14 8-14 8z"/></svg></span>`
+    : `<img src="${mediaSrc(m)}" loading="lazy" alt="">`}<span class="md">${m.d.slice(8)}/${m.d.slice(5,7)}</span></button>`;
+}
+function mediaGrid(ex, sk){
+  const list = mediaFor(ex, sk);
+  const add = assets ? `<button class="madd" data-act="media-add" data-ex="${ex||''}" data-sk="${sk||''}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Thêm ảnh/video</button>` : '';
+  if(!add && !list.length) return `<p class="small muted" style="margin:0">Chưa có ảnh hoặc video. Tải lên được khi mở trang trong Claude đã đăng nhập.</p>`;
+  return `<div class="mgrid">${add}${list.map(mediaThumb).join('')}</div>`;
+}
+function gridBox(ex, sk){ return `<div data-mgrid data-ex="${ex||''}" data-sk="${sk||''}">${mediaGrid(ex, sk)}</div>`; }
+function onMediaChange(){
+  document.querySelectorAll('[data-mgrid]').forEach(el=>{ el.innerHTML = mediaGrid(el.dataset.ex||null, el.dataset.sk||null); });
+  if(tab==='hist' || (tab==='today' && A)){ const y=window.scrollY; render(); window.scrollTo(0,y); }
+}
+let busyEl = null;
+function busy(msg){
+  if(!busyEl){ busyEl=document.createElement('div'); busyEl.className='toast'; busyEl.setAttribute('role','status'); busyEl.style.bottom='calc(120px + env(safe-area-inset-bottom,0px))'; document.body.appendChild(busyEl); }
+  busyEl.hidden = !msg; if(msg) busyEl.textContent = msg;
+}
+let pendingCtx = null;
+function pickMedia(ctx){
+  if(!assets){ toast('Cần mở trang trong Claude (đã đăng nhập) để tải ảnh/video'); return; }
+  pendingCtx = ctx; const inp = $('#file-in'); inp.value=''; inp.click();
+}
+$('#file-in').addEventListener('change', ev=>{
+  const f = ev.target.files && ev.target.files[0];
+  if(f && pendingCtx){ const c=pendingCtx; pendingCtx=null; uploadMedia(f, c); }
+});
+function shrinkImage(file){
+  return new Promise((res, rej)=>{
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 1600/Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width=Math.round(img.naturalWidth*s); c.height=Math.round(img.naturalHeight*s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      c.toBlob(b => b ? res(b) : rej({code:'decode'}), 'image/jpeg', .82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej({code:'decode'}); };
+    img.src = url;
+  });
+}
+// Nén video lớn hơn 20 MB: phát lại trong trang và ghi lại ở 960px (mất tiếng, tối đa 60 giây)
+async function shrinkVideo(file, prog){
+  const MR = window.MediaRecorder;
+  if(!MR || !HTMLCanvasElement.prototype.captureStream) throw {code:'nosupport'};
+  const mime = ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp8','video/webm'].find(t=>{ try{ return MR.isTypeSupported(t); }catch(e){ return false; } });
+  if(!mime) throw {code:'nosupport'};
+  const url = URL.createObjectURL(file);
+  const v = document.createElement('video'); v.muted=true; v.playsInline=true; v.setAttribute('playsinline',''); v.src=url;
+  v.style.cssText = 'position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0';
+  document.body.appendChild(v);
+  try{
+    await new Promise((res,rej)=>{ v.onloadedmetadata=res; v.onerror=()=>rej({code:'decode'}); setTimeout(()=>rej({code:'decode'}), 15000); });
+    const dur = Math.min(v.duration || 60, 60);
+    const sc = Math.min(1, 960/Math.max(v.videoWidth, v.videoHeight));
+    const c = document.createElement('canvas'); c.width=Math.round(v.videoWidth*sc/2)*2; c.height=Math.round(v.videoHeight*sc/2)*2;
+    const ctx = c.getContext('2d');
+    const rec = new MR(c.captureStream(30), {mimeType:mime, videoBitsPerSecond:1800000});
+    const chunks = []; rec.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
+    const stopped = new Promise(r => rec.onstop = r);
+    await v.play(); rec.start(1000);
+    await new Promise(res=>{ const step=()=>{ ctx.drawImage(v,0,0,c.width,c.height); prog(Math.min(1, v.currentTime/dur)); if(v.ended || v.currentTime>=dur) return res(); requestAnimationFrame(step); }; step(); });
+    rec.stop(); await stopped;
+    return new Blob(chunks, {type:mime.split(';')[0]});
+  } finally { v.pause(); v.remove(); URL.revokeObjectURL(url); }
+}
+async function uploadMedia(file, ctx){
+  const isVid = /^video\//.test(file.type) || /\.(mov|mp4|m4v|webm)$/i.test(file.name);
+  const isImg = !isVid && (/^image\//.test(file.type) || /\.(jpe?g|png|heic|heif|webp|gif)$/i.test(file.name));
+  if(!isVid && !isImg){ toast('Chỉ nhận ảnh hoặc video'); return; }
+  try{
+    let blob = file, type;
+    if(isImg){ busy('Đang nén ảnh…'); blob = await shrinkImage(file); type = 'image/jpeg'; }
+    else{
+      type = /webm/i.test(file.type) ? 'video/webm' : 'video/mp4';
+      if(file.size > MAX_UP){
+        busy('Video lớn hơn 20 MB, đang nén…');
+        blob = await shrinkVideo(file, p => busy('Đang nén video '+Math.round(p*100)+'% · giữ màn hình mở'));
+        type = blob.type==='video/webm' ? 'video/webm' : 'video/mp4';
+      }
+    }
+    if(blob.size > MAX_UP) throw {code:'too_large'};
+    busy('Đang tải lên…');
+    const r = await assets.upload(blob, {type});
+    S.media.unshift({id:r.id, t:isVid?'vid':'img', ex:ctx.ex||null, sk:ctx.sk?+ctx.sk:null, d:isoDate()});
+    save(); busy(null); onMediaChange(); toast(isVid ? 'Đã lưu video' : 'Đã lưu ảnh');
+  }catch(e){
+    busy(null);
+    const c = e && e.code;
+    toast(c==='too_large' ? 'Video vẫn quá 20 MB. Hãy cắt ngắn còn khoảng 20–30 giây rồi thử lại.'
+      : c==='nosupport' ? 'Máy không nén được video này. Hãy cắt ngắn cho dưới 20 MB rồi thử lại.'
+      : c==='unsupported_type' ? 'Định dạng chưa hỗ trợ. Dùng ảnh JPG/PNG hoặc video MP4/MOV.'
+      : c==='quota_or_state' ? 'Hết dung lượng lưu của trang. Xóa bớt video cũ rồi thử lại.'
+      : c==='rate_limited' ? 'Tải lên quá nhanh, đợi một chút rồi thử lại.'
+      : c==='decode' ? 'Không đọc được tệp này.'
+      : 'Tải lên không thành công. Thử lại sau.');
+  }
+}
+function openViewer(mid){
+  const m = S.media.find(x=>x.id===mid); if(!m) return;
+  const ex = m.ex && EX[m.ex]; const sess = m.sk && S.sessions.find(s=>s.sk===m.sk);
+  openSheet({title: m.t==='vid'?'Video':'Ảnh', foot:null,
+    body:`<div class="stack viewer">${m.t==='vid' ? `<video src="${mediaSrc(m)}" controls playsinline preload="metadata"></video>` : `<img src="${mediaSrc(m)}" alt="">`}
+      <p class="small muted" style="margin:0">${fmtDate(m.d)}${ex?' · '+esc(ex.vn):''}${sess?' · Buổi '+esc(sess.name):''}</p>
+      <div id="mv-del">${assets?`<button class="btn sm ghost" data-act="mv-ask">Xóa ${m.t==='vid'?'video':'ảnh'} này</button>`:''}</div></div>`,
+    onClick: async (ev, sh) => {
+      const b = ev.target.closest('[data-act]'); if(!b) return;
+      if(b.dataset.act==='mv-ask') sh.el.querySelector('#mv-del').innerHTML = `<div class="confirm">Xóa vĩnh viễn, không khôi phục được?<span style="flex:1"></span><button class="btn sm danger" data-act="mv-del">Xóa</button></div>`;
+      if(b.dataset.act==='mv-del'){
+        try{ await assets.delete(m.id); }catch(e){ toast('Chưa xóa được, thử lại sau'); return; }
+        S.media = S.media.filter(x=>x.id!==m.id); save(); closeSheet(); onMediaChange(); toast('Đã xóa');
+      }
+    }});
+}
+function commonAct(ev){
+  const b = ev.target.closest('[data-act]'); if(!b) return false;
+  const a = b.dataset.act;
+  if(a==='media-add'){ pickMedia({ex:b.dataset.ex||null, sk:b.dataset.sk||null}); return true; }
+  if(a==='media-view'){ openViewer(b.dataset.id); return true; }
+  if(a==='ex-info'){ openDetail(b.dataset.id); return true; }
+  return false;
+}
+function guideCard(){
+  return `<details class="card guide" id="guide"><summary><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M12 4v7M12 11c-2 0-3 1-4 3s-3 5-4 5-1-6 1-9 4-3 5-3M12 11c2 0 3 1 4 3s3 5 4 5 1-6-1-9-4-3-5-3"/></svg>Thở đúng &amp; tập an toàn</summary>
+  <ul class="tips">
+    <li><b>Khởi động</b> 5–10 phút, rồi 1–2 hiệp nhẹ (khoảng một nửa mức tạ) trước bài nặng đầu tiên.</li>
+    <li><b>Quy tắc chung:</b> thở ra khi dùng lực, hít vào khi hạ hoặc trả về. Không nín thở ở bài cô lập và bài giữ tư thế.</li>
+    <li><b>Bài đa khớp nặng</b> (squat, deadlift, đẩy ngực hoặc đẩy vai bằng tạ đòn): hít sâu vào bụng, gồng bụng, giữ hơi qua điểm khó, thở ra khi lên.</li>
+    <li><b>Tăng tạ</b> khi đã làm đủ số lần ở mọi hiệp với kỹ thuật đúng. Tăng ít một: khoảng 1–2,5 kg cho thân trên, 2,5–5 kg cho thân dưới.</li>
+    <li><b>Dừng ngay</b> khi đau nhói, đau khớp, tê tay chân hoặc chóng mặt. Mỏi và nóng cơ là bình thường.</li>
+    <li><b>Superset:</b> nghỉ đủ sau mỗi vòng. Nếu chưa nói được trọn câu thì nghỉ thêm.</li>
+    <li><b>Tự kiểm tra:</b> quay video góc nghiêng (nút máy ảnh trong mỗi bài) để xem lưng và đầu gối.</li>
+  </ul>
+  <div class="note-box warn small" style="margin-top:10px">Không dùng kiểu giữ hơi nếu bạn bị tăng huyết áp, bệnh tim mạch, tăng nhãn áp, thoát vị hoặc đang mang thai. Đây là hướng dẫn tập chung, không thay cho tư vấn của bác sĩ hay huấn luyện viên.</div></details>`;
+}
+
 /* ============ EVENTS ============ */
 document.querySelector('.tabbar').addEventListener('click', ev=>{
   const b=ev.target.closest('.tab'); if(!b) return;
@@ -896,6 +1288,7 @@ document.querySelector('.tabbar').addEventListener('click', ev=>{
 });
 document.addEventListener('click', ev=>{
   if(ev.target.closest('#sheets')) return;
+  if(commonAct(ev)) return;
   const b = ev.target.closest('[data-act]'); if(!b) return;
   const a = b.dataset.act, bi=+b.dataset.b, xi=+b.dataset.x, si=+b.dataset.s;
   switch(a){
@@ -939,14 +1332,14 @@ document.addEventListener('click', ev=>{
     case 'rest-add': restEnd = Math.max(Date.now(), restEnd) + (+b.dataset.v)*1000; if(!restIv){ restIv=setInterval(tickRest,250); } tickRest(); break;
     case 'rest-stop': stopRest(); break;
     case 'export': {
-      const txt = JSON.stringify({v:1, plans:S.plans, schedule:S.schedule, logs:S.logs, sessions:S.sessions});
+      const txt = JSON.stringify({v:1, plans:S.plans, schedule:S.schedule, logs:S.logs, sessions:S.sessions, media:S.media});
       const ok = () => toast('Đã sao chép. Dán vào ghi chú để giữ lại.');
       const fallback = () => openSheet({title:'Dữ liệu sao lưu', body:`<p class="small muted">Chọn hết và sao chép đoạn dưới đây.</p><textarea id="exp-txt" class="input" readonly>${esc(txt)}</textarea>`, foot:null});
       try{ navigator.clipboard.writeText(txt).then(ok, fallback); }catch(e){ fallback(); }
       break; }
     case 'import-open': openSheet({title:'Khôi phục dữ liệu', body:`<div class="stack"><p class="small muted" style="margin:0">Dán đoạn đã sao lưu. Dữ liệu hiện tại sẽ bị thay thế.</p><textarea id="imp-txt" class="input" placeholder='{"v":1,...}'></textarea></div>`, foot:`<button class="btn" data-close>Hủy</button><button class="btn pri" data-act="imp-do">Khôi phục</button>`,
       onClick:(ev,sh)=>{ const bb=ev.target.closest('[data-act="imp-do"]'); if(!bb) return;
-        try{ const d=JSON.parse(sh.el.querySelector('#imp-txt').value); if(!Array.isArray(d.plans)) throw 0; S={plans:d.plans, schedule:d.schedule||{}, logs:d.logs||{}, sessions:d.sessions||[]}; save(); closeSheet(); render(); toast('Đã khôi phục dữ liệu'); }
+        try{ const d=JSON.parse(sh.el.querySelector('#imp-txt').value); if(!Array.isArray(d.plans)) throw 0; S={plans:d.plans, schedule:d.schedule||{}, logs:d.logs||{}, sessions:d.sessions||[], media:d.media||S.media||[]}; save(); closeSheet(); render(); toast('Đã khôi phục dữ liệu'); }
         catch(e){ toast('Đoạn dán không đúng định dạng sao lưu'); } }}); break;
   }
 });
@@ -955,9 +1348,14 @@ function openFinish(){
   const undone = A.blocks.flatMap(b=>b.ex).filter(x=>!x.sets.some(s=>s.done)).map(x=>EX[x.id].vn);
   openSheet({title:'Kết thúc buổi tập', body:`<div class="stack"><p style="margin:0">Đã xong <b>${st.d}/${st.t}</b> hiệp trong ${elapsed()}. Số kg của các hiệp đã đánh dấu sẽ được nhớ cho lần sau.</p>
     ${undone.length?`<p class="small muted" style="margin:0">Chưa tập: ${undone.map(esc).join(', ')}. Các bài này không được ghi.</p>`:''}
+    <div><label class="lbl">Cảm nhận buổi tập</label><div class="chips" style="flex-wrap:wrap">${['Nhẹ','Vừa sức','Nặng','Quá sức'].map(f=>`<button class="chip" data-act="fin-feel" data-v="${f}" aria-pressed="${A.feel===f}">${f}</button>`).join('')}</div></div>
+    <div><label class="lbl" for="fin-note">Ghi chú</label><textarea id="fin-note" class="input note" placeholder="Ví dụ: squat lên 60kg nhẹ, vai phải hơi mỏi khi đẩy vai">${esc(A.note||'')}</textarea></div>
+    <div><label class="lbl">Ảnh/video buổi này</label>${gridBox(null, A.start)}</div>
     <div id="fin-confirm"></div></div>`,
+    onInput:(ev)=>{ if(ev.target.id==='fin-note'){ A.note=ev.target.value; saveActive(); } },
     foot:`<button class="btn ghost" data-act="fin-discard">Hủy buổi</button><button class="btn" data-close>Tập tiếp</button><button class="btn ok" data-act="fin-save">Lưu</button>`,
     onClick:(ev,sh)=>{ const b=ev.target.closest('[data-act]'); if(!b) return;
+      if(b.dataset.act==='fin-feel'){ A.feel = A.feel===b.dataset.v ? '' : b.dataset.v; saveActive(); sh.el.querySelectorAll('[data-act="fin-feel"]').forEach(c=>c.setAttribute('aria-pressed', String(c.dataset.v===A.feel))); }
       if(b.dataset.act==='fin-save') finishWorkout();
       if(b.dataset.act==='fin-discard') sh.el.querySelector('#fin-confirm').innerHTML=`<div class="confirm">Bỏ buổi này, không lưu gì?<span style="flex:1"></span><button class="btn sm danger" data-act="fin-discard-yes">Bỏ buổi</button></div>`;
       if(b.dataset.act==='fin-discard-yes'){ A=null; saveActive(); stopRest(); closeAllSheets(); render(); toast('Đã hủy buổi tập'); }
