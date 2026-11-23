@@ -249,6 +249,16 @@ details.guide summary::-webkit-details-marker{display:none}
 details.guide summary::after{content:'+';margin-left:auto;font-family:var(--display);font-size:24px;color:var(--ink-3)}
 details.guide[open] summary::after{content:'−'}
 details.guide[open] summary{margin-bottom:8px}
+.rt-list{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column}
+.rt{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
+.rt:first-child{border-top:0}
+.rt-b{flex:1;min-width:0;font-size:14px;line-height:1.35}
+.rt-b b{font-weight:600}
+.rt-b small{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px}
+.rt.on .rt-b{opacity:.6}
+.tick.sm-tick{width:40px;height:40px;flex:none}
+.rt .btn.sm{flex:none}
+.rt-card.done summary{color:var(--ok)}
 .confirm{background:var(--danger-soft);border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
 .foot-note{margin-top:28px;font-size:12px;color:var(--ink-3);text-align:center}
 </style>
@@ -552,6 +562,7 @@ function renderToday(){
       <div class="plan-h"><div style="flex:1"><div class="muted small">${dayLabel}</div><h3>${esc(p.name)}</h3></div>
       <span class="tag ${lastP?'ok':''}">${lastP?'Tập lần cuối: '+agoText(daysAgo(lastP.d)).toLowerCase():'Chưa tập lần nào'}</span></div>
       <div>${blockPreview(p)}</div>
+      <button class="btn block" data-act="routine" data-id="${p.id}">Xem khởi động &amp; giãn cơ cho buổi này</button>
       <button class="btn pri block" data-act="start" data-id="${p.id}">Bắt đầu buổi tập</button>
     </div>`;
   } else {
@@ -584,8 +595,9 @@ function renderWorkout(){
     <div class="row small muted" style="margin-top:4px"><span id="wo-time">${elapsed()}</span><span>·</span><span>${st.d}/${st.t} hiệp xong</span></div>
     <div class="prog"><i style="width:${st.t?Math.round(st.d/st.t*100):0}%"></i></div>
   </div>
-  <div class="stack">${A.blocks.map((b,bi)=>renderWBlock(b,bi)).join('')}</div>
-  <div class="row" style="margin-top:12px"><button class="btn block" data-act="w-add-block">+ Thêm superset vào buổi này</button></div>`;
+  <div class="stack">${routineCard('wu')}${A.blocks.map((b,bi)=>renderWBlock(b,bi)).join('')}</div>
+  <div class="row" style="margin-top:12px"><button class="btn block" data-act="w-add-block">+ Thêm superset vào buổi này</button></div>
+  <div class="sec">${routineCard('cd')}</div>`;
 }
 function renderWBlock(b,bi){
   const done = blockDone(b);
@@ -631,16 +643,17 @@ function startWorkout(plan){
 
 /* rest timer */
 let restEnd = 0, restLabel = '', restIv = null;
-function startRest(sec, label){
-  restEnd = Date.now()+sec*1000; restLabel = label;
+let restTitle = ['Đang nghỉ','Hết giờ nghỉ!'];
+function startRest(sec, label, t1, t2){
+  restEnd = Date.now()+sec*1000; restLabel = label; restTitle = [t1||'Đang nghỉ', t2||'Hết giờ nghỉ!'];
   clearInterval(restIv); restIv = setInterval(tickRest, 250); tickRest();
 }
 function stopRest(){ clearInterval(restIv); restIv=null; $('#rest').hidden=true; }
 function tickRest(){
   const left = Math.max(0, Math.ceil((restEnd-Date.now())/1000));
   const el = $('#rest'); el.hidden=false;
-  el.innerHTML = `<div class="rest-in" role="timer"><span class="t">${Math.floor(left/60)}:${pad(left%60)}</span><span class="l"><b>${left?'Đang nghỉ':'Hết giờ nghỉ!'}</b>${esc(restLabel)}</span>
-    <span class="ra"><button data-act="rest-add" data-v="-15">−15 giây</button><button data-act="rest-add" data-v="15">+15 giây</button><button data-act="rest-stop">${left?'Bỏ qua nghỉ':'Đóng'}</button></span></div>`;
+  el.innerHTML = `<div class="rest-in" role="timer"><span class="t">${Math.floor(left/60)}:${pad(left%60)}</span><span class="l"><b>${left?restTitle[0]:restTitle[1]}</b>${esc(restLabel)}</span>
+    <span class="ra"><button data-act="rest-add" data-v="-15">−15 giây</button><button data-act="rest-add" data-v="15">+15 giây</button><button data-act="rest-stop">${left?'Bỏ qua':'Đóng'}</button></span></div>`;
   if(left===0 && restIv){ clearInterval(restIv); restIv=null; try{ navigator.vibrate && navigator.vibrate([300,120,300]); }catch(e){} }
 }
 
@@ -655,7 +668,8 @@ function finishWorkout(){
     exSum.push({id:x.id, top:topSet({s:done}), n:done.length});
   }));
   if(exSum.length){
-    S.sessions.unshift({id:uid(), sk:A.start, d:today, planId:A.planId, name:A.name, min:Math.max(1,Math.round((Date.now()-A.start)/60000)), ex:exSum, note:(A.note||'').trim(), feel:A.feel||''});
+    S.sessions.unshift({id:uid(), sk:A.start, d:today, planId:A.planId, name:A.name, min:Math.max(1,Math.round((Date.now()-A.start)/60000)), ex:exSum, note:(A.note||'').trim(), feel:A.feel||'',
+      wu:[Object.keys(A.wu||{}).length, routineItems('wu', blocksGroups(A.blocks)).length], cd:[Object.keys(A.cd||{}).length, routineItems('cd', blocksGroups(A.blocks)).length]});
     S.sessions = S.sessions.slice(0,150);
   }
   A = null; saveActive(); save(); stopRest(); closeAllSheets(); render();
@@ -733,6 +747,7 @@ function renderHist(){
   const body = Object.keys(byMonth).map(k=>`<div class="sec"><div class="sec-h"><h2>Tháng ${+k.slice(5)}/${k.slice(0,4)}</h2><small>${byMonth[k].length} buổi</small></div><div class="stack">${byMonth[k].map(s=>`
     <div class="card sess"><div class="sess-h"><b>${esc(s.name)}</b><span class="small muted">${fmtDate(s.d)}${s.min?' · '+s.min+' phút':''}</span></div>
     <ul>${s.ex.map(x=>{const e=EX[x.id]; return e?`<li><span class="dot" style="--c:${GROUPS[e.g].c};width:9px;height:9px"></span><span>${esc(e.vn)} <span class="muted">(${x.n} hiệp)</span></span><span>${fmtSet(x.top,x.id)}</span></li>`:'';}).join('')}</ul>
+    ${s.wu?`<div class="row"><span class="tag ${s.wu[0]>=s.wu[1]?'ok':''}">Khởi động ${s.wu[0]}/${s.wu[1]}</span><span class="tag ${s.cd[0]>=s.cd[1]?'ok':''}">Giãn cơ ${s.cd[0]}/${s.cd[1]}</span></div>`:''}
     ${s.feel||s.note?`<div class="note-box">${s.feel?`<span class="tag">Cảm nhận: ${esc(s.feel)}</span> `:''}${esc(s.note||'')}</div>`:''}
     ${s.sk && (assets || mediaFor(null, s.sk).length) ? gridBox(null, s.sk) : ''}</div>`).join('')}</div></div>`).join('');
   return `${body || '<div class="card empty" style="margin-top:12px">Chưa có buổi tập nào. Bấm “Kết thúc” sau khi tập để lưu vào đây.</div>'}
@@ -1331,6 +1346,111 @@ function guideCard(){
   <div class="note-box warn small" style="margin-top:10px">Không dùng kiểu giữ hơi nếu bạn bị tăng huyết áp, bệnh tim mạch, tăng nhãn áp, thoát vị hoặc đang mang thai. Đây là hướng dẫn tập chung, không thay cho tư vấn của bác sĩ hay huấn luyện viên.</div></details>`;
 }
 
+/* ============ KHỞI ĐỘNG & GIÃN CƠ ============ */
+const WU_GENERAL = {id:'cardio', n:'Làm nóng toàn thân', dose:'5 phút', how:'Đạp xe, đi bộ nhanh hoặc nhảy dây nhẹ tới khi ấm người, thở nhanh hơn nhưng vẫn nói được thành câu.'};
+// Khởi động động: chuyển động có kiểm soát, không giữ lâu
+const WU = {
+  nguc:[{id:'arm-circle', n:'Xoay khớp vai', dose:'10 vòng ra trước, 10 vòng ra sau', how:'Dang tay ngang vai, xoay từ vòng nhỏ tới vòng lớn.'},
+        {id:'arm-hug', n:'Mở tay – ôm ngực', dose:'10 lần', how:'Dang rộng hai tay ra sau rồi ôm chéo trước ngực, nhịp đều.'},
+        {id:'band-apart', n:'Kéo giãn dây kháng lực', dose:'15 lần', how:'Tay thẳng ngang ngực, kéo dây ra hai bên, siết bả vai. Không có dây thì dang tay ra sau và siết bả vai.'},
+        {id:'pushup-easy', n:'Hít đất nhẹ', dose:'8–10 lần', how:'Chống gối hoặc chống tay lên ghế, xuống chậm.'}],
+  lung:[{id:'cat-cow', n:'Mèo – bò', dose:'8 lần', how:'Quỳ bốn điểm. Hít vào: võng lưng, ngẩng đầu. Thở ra: cong lưng, cúi đầu.'},
+        {id:'tspine', n:'Xoay lưng trên khi quỳ', dose:'6 lần mỗi bên', how:'Quỳ bốn điểm, một tay đặt sau đầu, xoay khuỷu xuống dưới người rồi mở lên trần.'},
+        {id:'scap-pull', n:'Treo xà hạ bả vai', dose:'8 lần', how:'Treo xà tay thẳng, kéo bả vai xuống để người nhích lên vài cm, không gập tay.'},
+        {id:'band-apart', n:'Kéo giãn dây kháng lực', dose:'15 lần', how:'Tay thẳng ngang ngực, kéo dây ra hai bên, siết bả vai.'}],
+  vai:[{id:'arm-circle', n:'Xoay khớp vai', dose:'10 vòng ra trước, 10 vòng ra sau', how:'Dang tay ngang vai, xoay từ vòng nhỏ tới vòng lớn.'},
+       {id:'ext-rot', n:'Xoay vai ra ngoài với dây', dose:'12 lần mỗi bên', how:'Khuỷu kẹp sát hông, gập 90°, xoay cẳng tay ra ngoài rồi về chậm.'},
+       {id:'wall-slide', n:'Trượt tay trên tường', dose:'10 lần', how:'Lưng và hai tay áp tường, trượt tay lên cao rồi kéo khuỷu xuống.'}],
+  tay:[{id:'wrist-roll', n:'Xoay cổ tay', dose:'10 vòng mỗi chiều', how:'Đan tay hoặc nắm hờ, xoay đều cổ tay.'},
+       {id:'elbow-flex', n:'Gập duỗi khuỷu không tạ', dose:'15 lần', how:'Gập hết rồi duỗi hết khuỷu, nhịp nhẹ.'},
+       {id:'light-arm', n:'Một hiệp nhẹ tay trước + tay sau', dose:'15–20 lần mỗi bài', how:'Cuốn cáp và đè cáp với mức tạ rất nhẹ.'}],
+  chan:[{id:'bw-squat', n:'Squat không tạ', dose:'10 lần', how:'Xuống chậm, gối theo hướng mũi chân.'},
+        {id:'leg-swing', n:'Đá chân trước – sau', dose:'10 lần mỗi chân', how:'Vịn tường, đá chân thả lỏng, biên độ tăng dần.'},
+        {id:'lunge-twist', n:'Bước chùng kèm xoay người', dose:'6 lần mỗi bên', how:'Bước chùng tới trước, xoay thân về phía chân trước.'},
+        {id:'bridge', n:'Nâng hông nằm', dose:'10 lần', how:'Nằm ngửa, gập gối, siết mông nâng hông.'}],
+  core:[{id:'cat-cow', n:'Mèo – bò', dose:'8 lần', how:'Quỳ bốn điểm. Hít vào: võng lưng. Thở ra: cong lưng.'},
+        {id:'dead-bug-w', n:'Bọ chết', dose:'6 lần mỗi bên', how:'Lưng dưới áp sàn, duỗi tay chân đối bên chậm.'},
+        {id:'bird-dog', n:'Chó – chim', dose:'6 lần mỗi bên', how:'Quỳ bốn điểm, duỗi tay và chân đối bên, giữ hông thẳng.'}]
+};
+// Giãn tĩnh sau tập: giữ ở mức căng nhẹ, không đau
+const CD = {
+  nguc:[{id:'door-pec', n:'Giãn ngực ở khung cửa', dose:'30 giây mỗi bên', sec:30, how:'Cẳng tay áp khung cửa, khuỷu ngang vai, bước chân trước tới khi căng ngực.'},
+        {id:'hands-behind', n:'Đan tay sau lưng mở ngực', dose:'30 giây', sec:30, how:'Đan tay sau lưng, duỗi tay, ưỡn ngực, kéo vai ra sau.'}],
+  lung:[{id:'child', n:'Tư thế em bé vươn tay', dose:'45 giây', sec:45, how:'Quỳ ngồi lên gót, vươn hai tay xa về phía trước, thả lỏng lưng.'},
+        {id:'lat-post', n:'Giãn xô vịn cột', dose:'30 giây mỗi bên', sec:30, how:'Một tay nắm cột ngang hông, đẩy hông ra sau và sang bên tới khi căng dọc sườn.'},
+        {id:'twist', n:'Nằm xoay lưng', dose:'30 giây mỗi bên', sec:30, how:'Nằm ngửa, kéo một gối qua người, hai vai áp sàn, mắt nhìn hướng ngược lại.'}],
+  vai:[{id:'cross-body', n:'Kéo tay ngang ngực', dose:'30 giây mỗi bên', sec:30, how:'Tay kia ép cánh tay sát ngực, vai hạ thấp.'},
+       {id:'thread-needle', n:'Luồn kim', dose:'30 giây mỗi bên', sec:30, how:'Quỳ bốn điểm, luồn một tay dưới người, áp vai và má xuống sàn.'}],
+  tay:[{id:'tri-oh', n:'Giãn tay sau qua đầu', dose:'30 giây mỗi bên', sec:30, how:'Gập khuỷu sau đầu, tay kia ấn nhẹ khuỷu xuống.'},
+       {id:'bi-wall', n:'Giãn tay trước áp tường', dose:'30 giây mỗi bên', sec:30, how:'Lòng bàn tay áp tường ngang vai, xoay người ra xa tường.'},
+       {id:'forearm', n:'Giãn cẳng tay', dose:'20 giây mỗi chiều', sec:20, how:'Duỗi thẳng tay, tay kia kéo nhẹ các ngón về phía người, sau đó gập xuống.'}],
+  chan:[{id:'quad', n:'Giãn đùi trước đứng', dose:'30 giây mỗi bên', sec:30, how:'Vịn tường, kéo gót chân về phía mông, hai gối sát nhau.'},
+        {id:'ham', n:'Giãn đùi sau', dose:'30 giây mỗi bên', sec:30, how:'Gót chân đặt lên ghế thấp, lưng thẳng, gập người từ hông.'},
+        {id:'hip-flex', n:'Giãn cơ gập hông khi quỳ', dose:'30 giây mỗi bên', sec:30, how:'Quỳ một gối, siết mông, đẩy hông nhẹ về trước.'},
+        {id:'fig4', n:'Giãn mông số 4', dose:'30 giây mỗi bên', sec:30, how:'Nằm ngửa, gác cổ chân lên gối kia, kéo đùi về phía ngực.'},
+        {id:'calf-wall', n:'Giãn bắp chân áp tường', dose:'30 giây mỗi bên', sec:30, how:'Chân sau thẳng, gót chạm sàn, dồn người về phía tường.'}],
+  core:[{id:'cobra', n:'Rắn hổ mang', dose:'30 giây', sec:30, how:'Nằm sấp, chống tay nâng ngực, hông vẫn chạm sàn.'},
+        {id:'side-bend', n:'Nghiêng người giãn sườn', dose:'20 giây mỗi bên', sec:20, how:'Đứng, một tay vươn qua đầu, nghiêng người sang bên kia.'}]
+};
+const CD_END = {id:'breathe', n:'Thở chậm thả lỏng', dose:'1–2 phút', sec:90, how:'Nằm ngửa, hít vào 4 giây, thở ra 6 giây cho nhịp tim chậm lại.'};
+const PER_GROUP = {wu:3, cd:3};
+function blocksGroups(blocks){ const s=new Set(); blocks.forEach(b=>b.ex.forEach(x=>EX[x.id]&&s.add(EX[x.id].g))); return [...s]; }
+function routineItems(kind, groups){
+  const src = kind==='wu' ? WU : CD, seen = new Set(), out = [];
+  if(kind==='wu') out.push(WU_GENERAL);
+  // Core thường là phần cuối buổi nên chỉ lấy 1 động tác; nhóm chính lấy 3 (2 nếu buổi có nhiều hơn 3 nhóm)
+  const main = groups.filter(g=>g!=='core').length;
+  groups.forEach(g => (src[g]||[]).filter(it=>!seen.has(it.id)).slice(0, g==='core' && main ? 1 : (main>3 ? 2 : PER_GROUP[kind])).forEach(it=>{ seen.add(it.id); out.push(Object.assign({g}, it)); }));
+  if(kind==='cd') out.push(CD_END);
+  return out;
+}
+// Hiệp làm nóng cho bài đa khớp đầu tiên: ~50% × 8, ~70% × 5, ~85% × 2–3 của mức tạ chính
+function rampFor(blocks, activeKg){
+  for(const b of blocks) for(const x of b.ex){
+    const e = EX[x.id]; if(!e || e.k!=='c' || !/Tạ|Máy/.test(e.eq)) continue;
+    let kg = activeKg ? numOr(x.sets && x.sets[0] && x.sets[0].kg) : 0;
+    if(!kg){ const t = topSet(lastEntry(x.id)); kg = t ? t[0] : 0; }
+    const step = /Tạ đòn|Smith|EZ/.test(e.eq) ? 2.5 : 1;
+    const r = f => Math.max(step, Math.round(kg*f/step)*step);
+    return {e, kg, sets: kg>0 ? [[r(.5),'8'],[r(.7),'5'],[r(.85),'2–3']] : null};
+  }
+  return null;
+}
+function rampHtml(rp){
+  if(!rp) return '';
+  return `<div class="note-box small"><b>Hiệp làm nóng cho ${esc(rp.e.vn)}</b> (trước hiệp chính${rp.kg?' '+rp.kg+' kg':''}):<br>${rp.sets
+    ? rp.sets.map((s,i)=>`Hiệp ${i+1}: <b class="num" style="font-size:16px">${s[0]} kg × ${s[1]}</b>`).join(' · ')
+    : 'Hiệp 1: khoảng 50% mức tạ chính × 8 · Hiệp 2: khoảng 70% × 5 · Hiệp 3: khoảng 85% × 2–3'}<br>Nghỉ 30–60 giây giữa các hiệp làm nóng. Bài khác nhóm cơ sau đó: làm 1 hiệp nhẹ × 10–12 trước.</div>`;
+}
+function routineList(kind, items, done){
+  return `<ul class="rt-list">${items.map(it=>{
+    const on = done && done[it.id];
+    return `<li class="rt ${on?'on':''}">${done?`<button class="tick sm-tick" aria-pressed="${!!on}" aria-label="Đã làm ${esc(it.n)}" data-act="rt-tick" data-k="${kind}" data-id="${it.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>`:''}
+      <div class="rt-b"><b>${esc(it.n)}</b> <span class="tag">${esc(it.dose)}</span>${it.g?` <span class="dot" style="--c:${GROUPS[it.g].c};width:9px;height:9px;display:inline-block;vertical-align:middle"></span>`:''}<small>${esc(it.how)}</small></div>
+      ${it.sec?`<button class="btn sm" data-act="rt-timer" data-s="${it.sec}" data-n="${esc(it.n)}">${it.sec} giây</button>`:''}</li>`;}).join('')}</ul>`;
+}
+const WU_NOTE = 'Khởi động động: chuyển động nhẹ, biên độ tăng dần, không giữ lâu. Thở đều theo nhịp động tác. Không giãn tĩnh lâu (giữ trên 60 giây) trước khi tập nặng.';
+const CD_NOTE = 'Giữ ở mức căng nhẹ, không đau, không nhún nảy. Thở ra chậm để thả lỏng sâu hơn. Mỗi bên 1–2 lần.';
+function routineCard(kind){
+  const groups = blocksGroups(A.blocks), items = routineItems(kind, groups);
+  const done = (kind==='wu' ? A.wu : A.cd) || {};
+  const n = items.filter(it=>done[it.id]).length, all = n===items.length;
+  const title = kind==='wu' ? 'Khởi động trước khi tập' : 'Giãn cơ sau khi tập';
+  const mins = kind==='wu' ? '8–10 phút' : '5–7 phút';
+  return `<details class="card guide rt-card ${all?'done':''}" ${all?'':'open'} id="rt-${kind}"><summary>${title}<span class="tag ${all?'ok':''}" style="margin-left:6px">${n}/${items.length}</span><span class="small muted" style="font-weight:400">${mins}</span></summary>
+    <p class="small muted" style="margin:0 0 8px">${kind==='wu'?WU_NOTE:CD_NOTE}</p>
+    ${routineList(kind, items, done)}
+    ${kind==='wu' ? rampHtml(rampFor(A.blocks, true)) : ''}</details>`;
+}
+function openRoutine(plan){
+  const groups = blocksGroups(plan.blocks);
+  openSheet({title:'Khởi động & giãn cơ', foot:null, body:`<div class="stack">
+    <p class="small muted" style="margin:0">${esc(plan.name)} · nhóm ${groups.map(g=>GROUPS[g].n).join(', ')}. Khi bắt đầu buổi tập, danh sách này hiện ở đầu và cuối buổi để bạn đánh dấu.</p>
+    <div class="card stack" style="padding:12px"><b style="font-weight:600">1. Khởi động trước khi tập · 8–10 phút</b><p class="small muted" style="margin:0">${WU_NOTE}</p>${routineList('wu', routineItems('wu', groups))}${rampHtml(rampFor(plan.blocks, false))}</div>
+    <div class="card stack" style="padding:12px"><b style="font-weight:600">2. Giãn cơ sau khi tập · 5–7 phút</b><p class="small muted" style="margin:0">${CD_NOTE}</p>${routineList('cd', routineItems('cd', groups))}</div>
+  </div>`, onClick:(ev)=>{ const b=ev.target.closest('[data-act="rt-timer"]'); if(b) startRest(+b.dataset.s, b.dataset.n, 'Đang giãn cơ', 'Xong, đổi bên hoặc bài tiếp'); }});
+}
+
 /* ============ EVENTS ============ */
 document.querySelector('.tabbar').addEventListener('click', ev=>{
   const b=ev.target.closest('.tab'); if(!b) return;
@@ -1381,6 +1501,9 @@ document.addEventListener('click', ev=>{
     case 'finish': openFinish(); break;
     case 'rest-add': restEnd = Math.max(Date.now(), restEnd) + (+b.dataset.v)*1000; if(!restIv){ restIv=setInterval(tickRest,250); } tickRest(); break;
     case 'rest-stop': stopRest(); break;
+    case 'routine': { const p=planById(b.dataset.id); if(p) openRoutine(p); break; }
+    case 'rt-tick': { const k=b.dataset.k; A[k]=A[k]||{}; if(A[k][b.dataset.id]) delete A[k][b.dataset.id]; else A[k][b.dataset.id]=1; saveActive(); const y=window.scrollY; render(); window.scrollTo(0,y); break; }
+    case 'rt-timer': startRest(+b.dataset.s, b.dataset.n, 'Đang giãn cơ', 'Xong, đổi bên hoặc bài tiếp'); break;
     case 'export': {
       const txt = JSON.stringify({v:1, plans:S.plans, schedule:S.schedule, logs:S.logs, sessions:S.sessions, media:S.media});
       const ok = () => toast('Đã sao chép. Dán vào ghi chú để giữ lại.');
@@ -1398,6 +1521,7 @@ function openFinish(){
   const undone = A.blocks.flatMap(b=>b.ex).filter(x=>!x.sets.some(s=>s.done)).map(x=>EX[x.id].vn);
   openSheet({title:'Kết thúc buổi tập', body:`<div class="stack"><p style="margin:0">Đã xong <b>${st.d}/${st.t}</b> hiệp trong ${elapsed()}. Số kg của các hiệp đã đánh dấu sẽ được nhớ cho lần sau.</p>
     ${undone.length?`<p class="small muted" style="margin:0">Chưa tập: ${undone.map(esc).join(', ')}. Các bài này không được ghi.</p>`:''}
+    ${(()=>{ const t=routineItems('cd', blocksGroups(A.blocks)).length, n=Object.keys(A.cd||{}).length; return n<t ? `<div class="note-box small">Bạn mới giãn cơ ${n}/${t} bài. Bấm “Tập tiếp” để làm phần giãn cơ ở cuối trang trước khi lưu.</div>` : ''; })()}
     <div><label class="lbl">Cảm nhận buổi tập</label><div class="chips" style="flex-wrap:wrap">${['Nhẹ','Vừa sức','Nặng','Quá sức'].map(f=>`<button class="chip" data-act="fin-feel" data-v="${f}" aria-pressed="${A.feel===f}">${f}</button>`).join('')}</div></div>
     <div><label class="lbl" for="fin-note">Ghi chú</label><textarea id="fin-note" class="input note" placeholder="Ví dụ: squat lên 60kg nhẹ, vai phải hơi mỏi khi đẩy vai">${esc(A.note||'')}</textarea></div>
     <div><label class="lbl">Ảnh/video buổi này</label>${gridBox(null, A.start)}</div>
