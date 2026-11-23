@@ -811,7 +811,7 @@ function openDetail(id){
   const body = `<div class="stack">
     <div class="fig-box" id="fig-box"></div>
     <div class="card stack" style="padding:12px"><b style="font-weight:600">Cách thở: ${br.t}</b><ol class="tips">${br.s.map(x=>`<li>${x}</li>`).join('')}</ol>${br.warn?`<div class="note-box warn small">${br.warn}</div>`:''}</div>
-    <div class="card stack" style="padding:12px"><b style="font-weight:600">Tránh chấn thương</b><ul class="tips">${(SAFETY[pat]||[]).map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div class="card stack" style="padding:12px"><b style="font-weight:600">Tránh chấn thương</b><ul class="tips">${safetyOf(pat).map(x=>`<li>${x}</li>`).join('')}</ul></div>
     <div><label class="lbl">Video hướng dẫn trên YouTube</label><div class="row"><a class="btn sm" href="${yt(e.en+' proper form')}" target="_blank" rel="noopener">Tiếng Anh: ${esc(e.en)}</a><a class="btn sm" href="${yt(e.vn+' hướng dẫn')}" target="_blank" rel="noopener">Tiếng Việt</a></div></div>
     <div><label class="lbl">Ảnh/video của tôi</label>${gridBox(id, null)}<p class="small muted" style="margin:6px 0 0">Quay góc nghiêng, khoảng 15–30 giây. Video trên 20 MB được nén tự động (mất tiếng).</p></div>
     <div class="row"><span class="tag"><span class="dot" style="--c:${GROUPS[e.g].c};width:9px;height:9px"></span>${GROUPS[e.g].n}</span><span class="tag">${esc(e.eq)}</span><span class="tag ${le&&daysAgo(le.d)<=7?'ok':''}">${agoText(le?daysAgo(le.d):null)}</span></div>
@@ -949,26 +949,27 @@ function openQuick(){
 
 /* ============ HÌNH ĐỘNG & NHỊP THỞ ============ */
 const PAT_IDS = {
-  squat:'squat front-squat goblet leg-press hack-squat',
+  squat:'squat front-squat goblet hack-squat', legpress:'leg-press',
   lunge:'bulgarian lunge step-up',
   hinge:'deadlift rack-pull rdl sumo-dl good-morning back-ext',
-  pressL:'bb-bench bb-incline bb-decline db-bench db-incline db-decline smith-incline chest-press db-fly db-incline-fly pec-deck cg-bench skull',
+  pressL:'bb-bench db-bench cg-bench', pressInc:'bb-incline db-incline smith-incline', pressDec:'bb-decline db-decline',
+  pressSeat:'chest-press', flyTop:'db-fly db-incline-fly', flyHigh:'cable-cross', flyLow:'cable-low-fly', pecdeck:'pec-deck', skull:'skull',
   pushup:'pushup decline-pushup',
   dip:'chest-dip tri-dip bench-dip',
-  pull:'pullup chinup lat-pulldown cg-pulldown straight-pulldown db-pullover',
-  row:'bb-row db-row tbar-row cs-row inverted-row',
+  pull:'pullup chinup lat-pulldown cg-pulldown', straightpd:'straight-pulldown', pullover:'db-pullover',
+  row:'bb-row db-row tbar-row cs-row', invrow:'inverted-row',
   srow:'cable-row face-pull',
-  ohp:'ohp db-shoulder arnold machine-shoulder landmine',
-  raise:'lat-raise cable-lat-raise front-raise rear-fly reverse-pec',
+  ohp:'ohp landmine', ohpSeat:'db-shoulder arnold machine-shoulder',
+  raise:'front-raise', latraise:'lat-raise cable-lat-raise', revfly:'rear-fly reverse-pec',
   upright:'upright-row', shrug:'shrug',
   curl:'bb-curl ez-curl db-curl hammer incline-curl preacher cable-curl conc-curl wrist-curl reverse-curl',
-  tri:'pushdown rope-pushdown oh-ext kickback',
+  tri:'pushdown rope-pushdown', ohext:'oh-ext', kickback:'kickback',
   legext:'leg-ext', legcurl:'lying-curl seated-curl',
   thrust:'hip-thrust glute-bridge', abduct:'adduction abduction',
   calf:'calf-stand calf-seat', plank:'plank side-plank hollow',
   crunch:'crunch cable-crunch bicycle v-up', legraise:'hanging-raise lying-raise',
   rollout:'ab-wheel', deadbug:'dead-bug',
-  pallof:'pallof cable-cross cable-low-fly woodchop russian-twist',
+  pallof:'pallof woodchop russian-twist',
   climber:'climber', carry:'farmer'
 };
 const PAT_OF = {}; for(const p in PAT_IDS) PAT_IDS[p].split(' ').forEach(id=>PAT_OF[id]=p);
@@ -1009,6 +1010,39 @@ const POSES = {
   climber:{body:{w:[140,133],e:[140,111],n:[140,88],h:[152,82],hp:[90,108]}, A:{k:[118,112],f:[100,128],k2:[66,118],f2:[42,131]}, B:{k:[66,118],f:[42,131],k2:[118,112],f2:[100,128]}, props:FLOOR, noToe:1, alt:1},
   carry:{A:SP({k:[110,106],f:[116,134],k2:[92,107],f2:[86,134]}), B:SP({k:[92,107],f:[86,134],k2:[110,106],f2:[116,134]}), props:FLOOR, alt:1}
 };
+// thân người nhìn từ phía trước: s/s2 = hai vai
+const FB = o => Object.assign({h:[100,24], n:[100,38], s:[87,42], s2:[113,42], hp:[100,80], k:[93,107], f:[90,134], k2:[107,107], f2:[110,134]}, o);
+const SEAT_BACK = '<rect class="propf" x="60" y="104" width="46" height="6" rx="2"/><rect class="propf" x="58" y="40" width="6" height="68" rx="2"/><line class="prop" x1="84" y1="110" x2="84" y2="137"/>'+FLOOR;
+const SEATED = {hp:[74,100], n:[73,62], h:[74,49], k:[104,100], f:[104,132]};
+const LYING = {h:[141,88], n:[128,92], hp:[72,92], k:[46,100], f:[40,134]};
+Object.assign(POSES, {
+  pressInc:{body:{h:[120,71], n:[111,81], hp:[72,112], k:[46,106], f:[40,134]}, B:{e:[110,60], w:[109,38]}, A:{e:[100,99], w:[108,75]},
+    props:'<polygon class="propf" points="76,118 124,80 128,86 80,124"/><rect class="propf" x="40" y="118" width="40" height="6" rx="2"/><line class="prop" x1="50" y1="124" x2="50" y2="137"/><line class="prop" x1="106" y1="100" x2="106" y2="137"/>'+FLOOR, noToe:1, view:'Nhìn ngang · ghế dốc lên khoảng 30–45°, đầu cao hơn hông'},
+  pressDec:{body:{h:[136,101], n:[124,100], hp:[70,86], k:[50,72], f:[40,96]}, B:{e:[124,78], w:[123,56]}, A:{e:[110,112], w:[120,88]},
+    props:'<polygon class="propf" points="58,93 140,115 138,121 56,99"/><circle class="propf" cx="40" cy="100" r="5"/><line class="prop" x1="66" y1="98" x2="66" y2="137"/><line class="prop" x1="128" y1="118" x2="128" y2="137"/>'+FLOOR, noToe:1, view:'Nhìn ngang · ghế dốc xuống, đầu thấp hơn hông'},
+  pressSeat:{body:SEATED, B:{e:[96,62], w:[120,62]}, A:{e:[56,70], w:[80,62]}, props:SEAT_BACK, noToe:1, view:'Nhìn ngang · máy đẩy ngực ngồi'},
+  ohpSeat:{body:SEATED, B:{e:[75,40], w:[74,16]}, A:{e:[82,78], w:[82,54]}, props:SEAT_BACK, noToe:1, view:'Nhìn ngang · ngồi ghế có tựa lưng'},
+  skull:{body:LYING, B:{e:[129,70], w:[128,48]}, A:{e:[133,70], w:[150,84]}, props:BENCH(52,150,98)+FLOOR, noToe:1},
+  pullover:{body:LYING, B:{e:[130,70], w:[130,48]}, A:{e:[150,86], w:[172,84]}, props:BENCH(52,150,98)+FLOOR, noToe:1},
+  flyTop:{B:FB({e:[82,40], w:[96,50], e2:[118,40], w2:[104,50]}), A:FB({e:[66,50], w:[46,56], e2:[134,50], w2:[154,56]}),
+    props:'<rect class="propf" x="84" y="14" width="32" height="84" rx="4"/>', sym:1, noToe:1, view:'Nhìn từ trên xuống · nằm ngửa trên ghế, tay mở rộng rồi khép trên ngực'},
+  flyHigh:{B:FB({e:[80,62], w:[97,76], e2:[120,62], w2:[103,76]}), A:FB({e:[66,44], w:[46,34], e2:[134,44], w2:[154,34]}),
+    props:'<line class="prop" x1="10" y1="-10" x2="10" y2="137"/><line class="prop" x1="190" y1="-10" x2="190" y2="137"/>'+FLOOR, anchor:[10,-8], anchor2:[190,-8], sym:1, noToe:1, view:'Nhìn từ phía trước · ròng rọc cao, kéo chéo xuống và khép tay trước bụng'},
+  flyLow:{B:FB({e:[80,46], w:[97,40], e2:[120,46], w2:[103,40]}), A:FB({e:[68,62], w:[50,80], e2:[132,62], w2:[150,80]}),
+    props:'<line class="prop" x1="10" y1="-10" x2="10" y2="137"/><line class="prop" x1="190" y1="-10" x2="190" y2="137"/>'+FLOOR, anchor:[10,130], anchor2:[190,130], sym:1, noToe:1, view:'Nhìn từ phía trước · ròng rọc thấp, kéo chéo lên ngang ngực trên'},
+  pecdeck:{body:{h:[100,24], n:[100,38], s:[87,42], s2:[113,42], hp:[100,84], k:[90,98], f:[88,132], k2:[110,98], f2:[112,132]},
+    B:{e:[92,48], w:[94,26], e2:[108,48], w2:[106,26]}, A:{e:[66,44], w:[64,22], e2:[134,44], w2:[136,22]},
+    props:'<rect class="propf" x="86" y="28" width="28" height="56" rx="3"/><rect class="propf" x="80" y="84" width="40" height="6" rx="2"/>'+FLOOR, sym:1, noToe:1, view:'Nhìn từ phía trước · ngồi máy, khép hai tay trước mặt'},
+  latraise:{A:FB({e:[85,62], w:[84,84], e2:[115,62], w2:[116,84]}), B:FB({e:[66,44], w:[44,46], e2:[134,44], w2:[156,46]}), props:FLOOR, sym:1, noToe:1, anchor:[190,134], view:'Nhìn từ phía trước · nâng tay sang ngang tới ngang vai'},
+  revfly:{A:FB({e:[86,58], w:[98,66], e2:[114,58], w2:[102,66]}), B:FB({e:[66,46], w:[44,48], e2:[134,46], w2:[156,48]}), props:FLOOR, sym:1, noToe:1, view:'Nhìn từ phía trước · người cúi về trước, mở tay sang hai bên'},
+  ohext:{A:SP({e:[103,18], w:[90,34]}), B:SP({e:[103,18], w:[104,-6]}), props:FLOOR, anchor:[70,137]},
+  kickback:{body:{h:[132,64], n:[120,70], hp:[86,88], k:[108,110], f:[100,134]}, A:{e:[100,80], w:[100,104]}, B:{e:[100,80], w:[76,86]}, props:FLOOR},
+  straightpd:{A:SP({e:[118,24], w:[132,6]}), B:SP({e:[106,64], w:[110,88]}), props:FLOOR, anchor:[150,-12]},
+  invrow:{B:{h:[142,58], n:[130,64], hp:[84,96], k:[56,116], f:[30,133], e:[116,58], w:[132,46]}, A:{h:[144,92], n:[132,98], hp:[84,116], k:[56,126], f:[30,133], e:[132,72], w:[132,46]},
+    props:'<line class="prop" x1="108" y1="46" x2="172" y2="46"/><line class="prop" x1="168" y1="46" x2="168" y2="137"/>'+FLOOR, noToe:1},
+  legpress:{body:{hp:[80,110], n:[52,84], h:[44,74], e:[66,102], w:[76,112]}, B:{k:[108,94], f:[134,76]}, A:{k:[92,82], f:[116,70]},
+    props:'<polygon class="propf" points="75,115 45,87 41,92 71,120"/><rect class="propf" x="68" y="116" width="30" height="6" rx="2"/><line class="prop" x1="82" y1="122" x2="82" y2="137"/><line class="prop" x1="96" y1="122" x2="176" y2="66"/>'+FLOOR, noToe:1, item:'sled', view:'Nhìn ngang · máy đạp đùi'}
+});
 for(const k in POSES){ const s=POSES[k]; s.B=Object.assign({}, s.body||{}, s.B); s.A=Object.assign({}, s.body||{}, s.A||s.B); }
 
 function breathType(id){
@@ -1016,7 +1050,8 @@ function breathType(id){
   if(['plank','carry','climber'].includes(p)) return 'iso';
   if(['crunch','legraise','rollout','deadbug'].includes(p)) return 'core';
   if(e.k==='c' && ['squat','hinge','thrust'].includes(p)) return 'brace';
-  if(e.k==='c' && ['pressL','ohp','row','lunge'].includes(p) && ['Tạ đòn','Máy Smith'].includes(e.eq)) return 'brace';
+  if(e.k==='c' && ['pressL','pressInc','pressDec','ohp','row','lunge'].includes(p) && ['Tạ đòn','Máy Smith'].includes(e.eq)) return 'brace';
+  if(p==='legpress') return 'brace';
   return 'std';
 }
 // a/b: vị trí tư thế (0 = co cơ, 1 = duỗi); l0/l1: lượng hơi trong phổi
@@ -1066,16 +1101,26 @@ const SAFETY = {
   deadbug:['Lưng dưới áp sàn suốt bài.','Duỗi tay chân đối bên chậm rãi.','Thở ra khi duỗi ra.'],
   pallof:['Hông và vai hướng thẳng, chống lại lực xoay.','Gồng bụng, không nghiêng người.','Đẩy ra chậm, giữ 1–2 giây.'],
   climber:['Hông ngang vai, tay thẳng dưới vai.','Giữ nhịp đều, không để hông nảy lên xuống.','Thở đều theo nhịp chân.'],
-  carry:['Đứng thẳng, vai không rũ, không nghiêng người.','Bước ngắn và đều.','Đặt tạ xuống bằng cách gập hông, không cúi lưng.']
+  carry:['Đứng thẳng, vai không rũ, không nghiêng người.','Bước ngắn và đều.','Đặt tạ xuống bằng cách gập hông, không cúi lưng.'],
+  pressInc:['Ghế dốc khoảng 30–45°; dốc hơn thì bài chuyển sang vai nhiều hơn.','Ép bả vai ra sau và xuống, ngực hướng lên.','Hạ tạ về phần ngực trên, khuỷu không bè ngang 90°.'],
+  fly:['Khuỷu hơi cong và giữ nguyên góc suốt động tác.','Mở tay tới khi thấy căng ngực, không kéo vai quá sâu ra sau.','Dùng mức tạ nhẹ hơn bài đẩy ngực; khép tay chậm, siết ngực.'],
+  skull:['Khuỷu giữ cố định, chỉ cẳng tay di chuyển.','Hạ tạ chậm về phía trán hoặc ra sau đầu.','Dùng tạ vừa sức; đau khuỷu thì giảm tạ.'],
+  pullover:['Khuỷu hơi cong, hạ tạ ra sau đầu tới mức vai còn thoải mái.','Hông áp ghế, không ưỡn lưng.','Cầm chắc tạ bằng hai tay.'],
+  straightpd:['Tay gần thẳng, khuỷu hơi cong cố định.','Kéo bằng lưng xô, không gập người theo.','Thân hơi nghiêng trước, lưng thẳng.'],
+  revfly:['Cúi người, lưng thẳng.','Mở tay sang hai bên bằng vai sau, không giật.','Tạ nhẹ, khuỷu hơi cong.'],
+  invrow:['Thân thẳng như tấm ván, siết mông.','Kéo ngực về phía thanh, siết bả vai.','Hạ chậm hết tầm.'],
+  legpress:['Không khóa gối khi duỗi chân.','Hạ tới mức mông và lưng dưới chưa nhấc khỏi đệm.','Đặt bàn chân rộng bằng vai, giữa bàn đạp.']
 };
+const SAFETY_ALIAS = {pressDec:'pressL', pressSeat:'pressL', ohpSeat:'ohp', flyTop:'fly', flyHigh:'fly', flyLow:'fly', pecdeck:'fly', latraise:'raise', ohext:'tri', kickback:'tri'};
+const safetyOf = p => SAFETY[p] || SAFETY[SAFETY_ALIAS[p]] || [];
 function itemOf(id, spec){
-  if(spec.item==='wheel') return 'wheel';
+  if(spec.item==='wheel' || spec.item==='sled') return spec.item;
   const eq = EX[id].eq;
   if(['Tạ đòn','Tạ EZ','Máy Smith','Tạ đĩa'].includes(eq)) return 'plate';
   if(eq.startsWith('Tạ đơn')) return 'db';
   return '';
 }
-const ITEM_SVG = {plate:'<circle r="12"/>', db:'<rect x="-10" y="-4" width="20" height="8" rx="2"/>', wheel:'<circle r="9"/>'};
+const ITEM_SVG = {plate:'<circle r="12"/>', db:'<rect x="-10" y="-4" width="20" height="8" rx="2"/>', wheel:'<circle r="9"/>', sled:'<rect x="-3" y="-15" width="6" height="30" rx="2" transform="rotate(-35)"/>'};
 let FIG = null;
 const ease = x => x<.5 ? 2*x*x : 1-Math.pow(-2*x+2,2)/2;
 function lerpPose(B,A,p){ const o={}; new Set([...Object.keys(B),...Object.keys(A)]).forEach(k=>{ const b=B[k]||A[k], a=A[k]||B[k]; o[k]=[b[0]+(a[0]-b[0])*p, b[1]+(a[1]-b[1])*p]; }); return o; }
@@ -1085,21 +1130,24 @@ function mountFig(box, id){
   const spec = Object.assign({}, spec0);
   if(id==='adduction'){ spec.A=spec0.B; spec.B=spec0.A; }
   const item = itemOf(id, spec);
-  const cable = EX[id].eq.includes('Cáp');
-  const anchor = spec.anchor || [124,136];
+  const cable = EX[id].eq==='Cáp';
+  const anchor = spec.anchor || [124,136], anchor2 = spec.anchor2;
+  const item2 = spec.sym && item==='db' ? 'db' : '';
   box.innerHTML = `<svg class="fig" viewBox="0 -14 200 164" role="img" aria-label="Hình động minh họa ${esc(EX[id].vn)} kèm nhịp thở">
     <g>${spec.props||''}</g>
-    <line class="cable" ${cable?'':'visibility="hidden"'} x1="${anchor[0]}" y1="${anchor[1]}"/>
-    <path class="${spec.sym?'limb':'limb2'}" data-p="leg2"/><path class="limb2" data-p="arm2"/>
+    <line class="cable" data-c="1" ${cable?'':'visibility="hidden"'} x1="${anchor[0]}" y1="${anchor[1]}"/>
+    <line class="cable" data-c="2" ${cable&&anchor2?'':'visibility="hidden"'} x1="${anchor2?anchor2[0]:0}" y1="${anchor2?anchor2[1]:0}"/>
+    <path class="${spec.sym?'limb':'limb2'}" data-p="leg2"/><path class="${spec.sym?'limb':'limb2'}" data-p="arm2"/>
     <path class="limb" data-p="leg"/><path class="limb" data-p="torso"/><path class="limb" data-p="arm"/>
-    <circle class="head" r="9"/><g class="item">${ITEM_SVG[item]||''}</g>
+    <circle class="head" r="9"/><g class="item">${ITEM_SVG[item]||''}</g><g class="item" data-i="2">${ITEM_SVG[item2]||''}</g>
     <circle class="lung" cx="20" cy="2" r="8"/><text x="40" y="6" font-size="10" fill="var(--ink-3)">lượng hơi trong phổi</text></svg>
-    <div class="breath-now"><span class="ph"></span><span class="small muted" style="margin-left:auto">Chạm hình để dừng</span></div>`;
+    <div class="breath-now"><span class="ph"></span><span class="small muted" style="margin-left:auto">Chạm hình để dừng</span></div>
+    <p class="small muted" style="margin:0">${esc(spec.view || 'Nhìn ngang')} · hình giản lược</p>`;
   const svg = box.querySelector('svg');
   const q = s => svg.querySelector(s);
   FIG = {svg, spec, type:breathType(id), t0:performance.now(), paused:false, lastSeg:null,
     leg:q('[data-p="leg"]'), leg2:q('[data-p="leg2"]'), arm:q('[data-p="arm"]'), arm2:q('[data-p="arm2"]'), torso:q('[data-p="torso"]'),
-    head:q('.head'), item:q('.item'), itemT:item, cable:cable?q('.cable'):null, lung:q('.lung'),
+    head:q('.head'), item:q('.item'), item2:item2?q('[data-i="2"]'):null, itemT:item, cable:cable?q('[data-c="1"]'):null, cable2:cable&&anchor2?q('[data-c="2"]'):null, lung:q('.lung'),
     bn:box.querySelector('.breath-now'), ph:box.querySelector('.ph'), hint:box.querySelector('.breath-now .muted')};
   const F = FIG;
   svg.addEventListener('click', ()=>{ F.paused=!F.paused; if(!F.paused) F.t0=performance.now(); F.hint.textContent = F.paused ? 'Đã dừng · chạm để chạy' : 'Chạm hình để dừng'; });
@@ -1113,11 +1161,13 @@ function drawPose(F, P, l){
   const toe = (f,t) => F.spec.noToe ? null : pt(t || [f[0]+11, f[1]]);
   F.leg.setAttribute('d', legPath(pt(P.hp),pt(P.k),pt(P.f),toe(P.f,P.t)));
   F.leg2.setAttribute('d', P.k2 ? legPath(pt(P.hp),pt(P.k2),pt(P.f2),toe(P.f2)) : '');
-  F.torso.setAttribute('d', `M${pt(P.hp)} L${pt(P.n)}`);
-  F.arm.setAttribute('d', `M${pt(P.n)} L${pt(P.e)} L${pt(P.w)}`);
-  F.arm2.setAttribute('d', P.e2 ? `M${pt(P.n)} L${pt(P.e2)} L${pt(P.w2)}` : '');
+  F.torso.setAttribute('d', `M${pt(P.hp)} L${pt(P.n)}`+(P.s?` M${pt(P.s)} L${pt(P.s2)}`:''));
+  F.arm.setAttribute('d', `M${pt(P.s||P.n)} L${pt(P.e)} L${pt(P.w)}`);
+  F.arm2.setAttribute('d', P.e2 ? `M${pt(P.s2||P.n)} L${pt(P.e2)} L${pt(P.w2)}` : '');
   F.head.setAttribute('cx', P.h[0]); F.head.setAttribute('cy', P.h[1]);
-  const ip = F.spec.item==='hip' ? [P.hp[0], P.hp[1]-9] : F.itemT==='wheel' ? [P.w[0], P.w[1]+5] : P.w;
+  const ip = F.spec.item==='hip' ? [P.hp[0], P.hp[1]-9] : F.itemT==='wheel' ? [P.w[0], P.w[1]+5] : F.itemT==='sled' ? [P.f[0]+3, P.f[1]-2] : P.w;
+  if(F.item2 && P.w2) F.item2.setAttribute('transform', `translate(${P.w2[0].toFixed(1)} ${P.w2[1].toFixed(1)})`);
+  if(F.cable2 && P.w2){ F.cable2.setAttribute('x2', P.w2[0]); F.cable2.setAttribute('y2', P.w2[1]); }
   F.item.setAttribute('transform', `translate(${ip[0].toFixed(1)} ${ip[1].toFixed(1)})`);
   if(F.cable){ F.cable.setAttribute('x2', P.w[0]); F.cable.setAttribute('y2', P.w[1]); }
   F.lung.setAttribute('r', (6+9*l).toFixed(1));
