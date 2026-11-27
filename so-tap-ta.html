@@ -249,6 +249,7 @@ details.guide summary::-webkit-details-marker{display:none}
 details.guide summary::after{content:'+';margin-left:auto;font-family:var(--display);font-size:24px;color:var(--ink-3)}
 details.guide[open] summary::after{content:'−'}
 details.guide[open] summary{margin-bottom:8px}
+.sub-h{font-size:17px;text-transform:uppercase;margin:14px 0 6px}
 .rt-list{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column}
 .rt{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
 .rt:first-child{border-top:0}
@@ -581,6 +582,7 @@ function renderToday(){
   return `
   <section class="sec" style="margin-top:6px"><div class="week">${week}</div></section>
   <section class="sec">${main}</section>
+  <section class="sec">${dbGuideCard()}</section>
   <section class="sec">${guideCard()}</section>
   <section class="sec"><div class="sec-h"><h2>Nhóm cơ lâu chưa tập</h2><button class="btn sm" data-act="quick">Tạo buổi nhanh</button></div>
     <div class="fresh">${fresh.map(f=>`<div class="f"><span class="dot" style="--c:${GROUPS[f.g].c}"></span><div><b>${GROUPS[f.g].n}</b><small>${agoText(f.d)}</small></div></div>`).join('')}</div>
@@ -601,7 +603,7 @@ function renderWorkout(){
     <div class="row small muted" style="margin-top:4px"><span id="wo-time">${elapsed()}</span><span>·</span><span>${st.d}/${st.t} hiệp xong</span></div>
     <div class="prog"><i style="width:${st.t?Math.round(st.d/st.t*100):0}%"></i></div>
   </div>
-  <div class="stack">${routineCard('wu')}${A.blocks.map((b,bi)=>renderWBlock(b,bi)).join('')}</div>
+  <div class="stack">${dbGuideCard()}${routineCard('wu')}${A.blocks.map((b,bi)=>renderWBlock(b,bi)).join('')}</div>
   <div class="row" style="margin-top:12px"><button class="btn block" data-act="w-add-block">+ Thêm superset vào buổi này</button></div>
   <div class="sec">${routineCard('cd')}</div>`;
 }
@@ -833,6 +835,7 @@ function openDetail(id){
     <div class="fig-box" id="fig-box"></div>
     <div class="card stack" style="padding:12px"><b style="font-weight:600">Cách thở: ${br.t}</b><ol class="tips">${br.s.map(x=>`<li>${x}</li>`).join('')}</ol>${br.warn?`<div class="note-box warn small">${br.warn}</div>`:''}</div>
     <div class="card stack" style="padding:12px"><b style="font-weight:600">Tránh chấn thương</b><ul class="tips">${safetyOf(pat).map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    ${OVER_FACE.has(id)?`<div class="note-box warn small"><b>Tạ ở trên mặt, cổ hoặc đầu:</b> trước mỗi hiệp, kiểm tra dấu “|” đã khớp với “▲” trên mặt số. Dùng mức nhẹ hơn một nấc so với bài khác cùng nhóm, nắm chắc tay cầm, dừng khi còn dư 2–3 lần. Tờ hướng dẫn của hãng cảnh báo tấm tạ có thể tuột khi dụng cụ cũ đi.</div>`:''}
     <div><label class="lbl">Video hướng dẫn trên YouTube</label><div class="row"><a class="btn sm" href="${yt(e.en+' proper form')}" target="_blank" rel="noopener">Tiếng Anh: ${esc(e.en)}</a><a class="btn sm" href="${yt(e.vn+' hướng dẫn')}" target="_blank" rel="noopener">Tiếng Việt</a></div></div>
     <div><label class="lbl">Ảnh/video của tôi</label>${gridBox(id, null)}<p class="small muted" style="margin:6px 0 0">Quay góc nghiêng, khoảng 15–30 giây. Video trên 20 MB được nén tự động (mất tiếng).</p></div>
     <div class="row"><span class="tag"><span class="dot" style="--c:${GROUPS[e.g].c};width:9px;height:9px"></span>${GROUPS[e.g].n}</span><span class="tag">${esc(e.eq)}</span><span class="tag ${le&&daysAgo(le.d)<=7?'ok':''}">${agoText(le?daysAgo(le.d):null)}</span></div>
@@ -1342,6 +1345,34 @@ function commonAct(ev){
   if(a==='ex-info'){ openDetail(b.dataset.id); return true; }
   if(a==='rt-show'){ openRoutineItem(b.dataset.id); return true; }
   return false;
+}
+const OVER_FACE = new Set(['db-bench','db-incline','db-decline','db-fly','db-incline-fly','db-pullover','oh-ext','db-shoulder','arnold']);
+function dbGuideCard(){
+  return `<details class="card guide" id="db-guide"><summary><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>An toàn với tạ PUMPKING &amp; ghế tập</summary>
+  <p class="small muted" style="margin:0">Hai phần bên dưới tách riêng: phần đầu trích từ tờ hướng dẫn PUMPKING LS-PK24 / LS-PK40 của ライシン株式会社; phần sau là khuyến nghị thêm của tôi, không có trong tờ hướng dẫn.</p>
+  <h3 class="sub-h">Hãng yêu cầu</h3>
+  <ul class="tips">
+    <li><b>Chỉnh mức tạ:</b> đặt tạ trên đế, xoay tay cầm tới số kg muốn chọn cho tới khi nghe tiếng “tách tách”, rồi khớp dấu “|” với dấu “▲”. Nếu lệch, khóa không ăn và tấm tạ có thể rơi xuống khi nhấc. Tay cầm không xoay được khi tạ đã rời khỏi đế.</li>
+    <li><b>Nhấc:</b> nhấc thẳng đứng, chậm. Kiểm tra không còn tấm thừa dính theo và bạn đã nhấc thẳng. Đế có thể bị nhấc lên theo.</li>
+    <li><b>Trả tạ:</b> đặt về đế thật chậm, không để va đập vì có thể làm hỏng. Mỗi tấm tạ phải nằm khít trong rãnh của đế.</li>
+    <li><b>Trước mỗi lần dùng:</b> kiểm tra không nứt, không vỡ. Có bất thường thì không dùng. Định kỳ kiểm tra và thử cơ cấu khóa. Không dùng khi tạ hoạt động không bình thường.</li>
+    <li><b>Không tháo rời, không sửa, không cải tạo.</b> Chỉ dùng ở nhà.</li>
+    <li><b>Khởi động</b> và giãn cơ trước khi tập. Nên dùng đồ hỗ trợ (supporter). Chọn mức tạ hợp với sức mình.</li>
+    <li><b>Không gian:</b> chỗ tập đủ rộng. Giữ trẻ em và thú cưng tránh xa. Cẩn thận để không kẹp ngón tay. Tạ nặng: khi khiêng cần từ 2 người trở lên.</li>
+    <li><b>Hãng cảnh báo:</b> do cũ đi hoặc nguyên nhân khác, tấm tạ có thể bị tuột ra. Hãy tránh cách dùng có nguy cơ cao.</li>
+    <li><b>Dừng ngay</b> nếu chóng mặt, buồn nôn, đau ngực hoặc có bất thường, rồi đi khám. Người từ 35 tuổi trở lên có vấn đề sức khỏe cần hỏi bác sĩ trước khi tập.</li>
+    <li><b>Cất giữ:</b> tránh nắng trực tiếp, nơi nóng ẩm và ngoài trời. Lau mồ hôi bằng khăn khô sau khi dùng. Lâu không dùng thì kiểm tra lại trước khi tập.</li>
+  </ul>
+  <h3 class="sub-h">Khuyến nghị thêm khi tập với ghế</h3>
+  <ul class="tips">
+    <li><b>Dừng khi còn dư 2–3 lần.</b> Ở nhà không có người đỡ, nên không tập tới kiệt sức.</li>
+    <li><b>Bài có tạ ở trên mặt, cổ, đầu</b> (đẩy ngực, ép ngực, kéo tạ qua đầu, đẩy vai): kiểm tra dấu “|” và “▲” trước từng hiệp, dùng mức nhẹ hơn một nấc.</li>
+    <li><b>Vào tư thế trên ghế:</b> ngồi, đặt tạ lên đùi, ngả người ra sau và dùng đầu gối đẩy từng tạ lên. <b>Ra khỏi tư thế:</b> hạ tạ về đùi, ngồi dậy rồi trả về đế. Không thả tạ xuống sàn.</li>
+    <li><b>Đặt hai đế sát ghế</b> trên sàn phẳng, trong tầm với. Vì chỉ chỉnh được mức tạ khi tạ nằm trên đế, mỗi lần đổi bài trong superset đều phải quay về đế để xoay lại.</li>
+    <li><b>Ghế:</b> chốt khóa lưng ghế vào hẳn, chân ghế không trượt, không rung lắc (nên có thảm chống trượt). Tải trọng ghi trên nhãn ghế phải lớn hơn cân nặng của bạn cộng với hai tạ. Vặn lại ốc vít định kỳ.</li>
+    <li><b>Tăng tạ từng nấc,</b> chỉ khi bạn đạt đủ số lần mục tiêu ở mọi hiệp với kỹ thuật đúng.</li>
+  </ul>
+  <div class="note-box warn small">Đây là tổng hợp từ tờ hướng dẫn và khuyến nghị tập chung, không thay cho ý kiến của bác sĩ hay huấn luyện viên. Hãng ライシン: support@lysin.jp, 0283-85-8377. Thiếu phụ kiện hoặc hàng bị hỏng: liên hệ trong 1 tuần kể từ khi nhận hàng.</div></details>`;
 }
 function guideCard(){
   return `<details class="card guide" id="guide"><summary><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M12 4v7M12 11c-2 0-3 1-4 3s-3 5-4 5-1-6 1-9 4-3 5-3M12 11c2 0 3 1 4 3s3 5 4 5 1-6-1-9-4-3-5-3"/></svg>Thở đúng &amp; tập an toàn</summary>
